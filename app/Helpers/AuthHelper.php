@@ -5,6 +5,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\File; 
 use App\Helpers\AppHelper;
+use Illuminate\Support\Facades\Crypt;
 use Redirect;
 use Validator;
 use Response;
@@ -14,7 +15,9 @@ class AuthHelper
 {
      
     public static function getAuthUser(){
+      
         $getUserid = auth()->user()->id;
+       
         
         if (!Auth::check()) {
            
@@ -29,6 +32,19 @@ class AuthHelper
       
        ->get();
         }
+
+    }
+    public static function getUserData(){
+
+        $user = Auth::user();
+ 
+        $roleuser=$user->roles->first()->name;
+        $user->dir=$user->direktorat;
+        $user->unit=Crypt::encrypt($user->unit);
+        $user->direktorat=Crypt::encrypt($user->direktorat);  
+        
+        return $user;
+        
 
     }
      

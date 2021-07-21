@@ -1,286 +1,262 @@
 <!DOCTYPE html>
-<html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Review JSEA</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/datatables-bs4/css/dataTables.bootstrap4.css') }}">
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/icheck-bootstrap/icheck-bootstrap.min.css')}}">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/dist/css/adminlte.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('/adminlte3/plugins/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('/adminlte3/plugins/toastr/toastr.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.bootstrap4.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.bootstrap4.min.css">
-
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-</head>
-
-<body class="hold-transition sidebar-mini">
-    <div class="wrapper">
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
-                </li>
-
-            </ul>
-
-
-
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Messages Dropdown Menu -->
-
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    {{-- <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-danger navbar-badge" id="jumlahnotif">0</span>
-                    </a> --}}
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right "id='divkapasitas'>
-                        {{-- <span class="dropdown-item dropdown-header" id='jmlhnotif'>0</span> --}}
-                        {{-- <div class="dropdown-divider"></div> --}}
-                        {{-- <a href="#" class="dropdown-item" id='warning_msg'> --}}
-                            {{-- <i class="fas fa-envelope mr-2"></i> - --}}
-                            {{-- <span class="float-right text-muted text-sm">3 mins</span> --}}
-                        {{-- </a> --}}
-                        {{-- <div class="dropdown-divider"></div> --}}
-                        {{-- <a href="#" class="dropdown-item" id='danger_msg'> --}}
-                            {{-- <i class="fas fa-users mr-2"></i> - --}}
-                            {{-- <span class="float-right text-muted text-sm">12 hours</span> --}}
-                        {{-- </a> --}}
-                        {{-- <div class="dropdown-divider" ></div> --}}
-                        {{-- <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2" id='kapasitas'></i> 3 new reports --}}
-                            {{-- <span class="float-right text-muted text-sm">2 days</span> --}}
-                        {{-- </a> --}}
-                        {{-- <div class="dropdown-divider"></div> --}}
-                        {{-- <a href="{{route('pemrosesan.listview')}}" class="dropdown-item dropdown-footer">Lihat Semua
-                            Data</a> --}}
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        @yield('title')
+        {{-- <title>Dashboard - SB Admin Pro</title>  --}}
+        
+        <link href="{{ asset('/sb-admin-pro/dist/css/styles.css')}}" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="{{ asset('/sb-admin-pro/assets/dist/img/favicon.png')}}" />
+        <link href="{{ asset('/sb-admin-pro/dataTables.bootstrap4.min.css')}}" rel="stylesheet" crossorigin="anonymous" />
+        <link href="{{ asset('/sb-admin-pro/daterangepicker.css')}}" rel="stylesheet" crossorigin="anonymous" />
+        <script data-search-pseudo-elements defer src="{{ asset('/sb-admin-pro/font-awesome-all.min.js')}}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/feather.min.js')}}" crossorigin="anonymous"></script>
+        {{-- <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2/css/select2.min.css') }}">  --}}
+        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}"> 
+        {{-- <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/select/select1.bootstrap4.min.css')}}">
+        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/button/buttons.bootstrap4.min.css')}}">
+        <script src="{{ asset('/adminlte3/plugins/otherplugin/select/dataTables.select1.min.js') }}"></script> 
+        <script src="{{ asset('/adminlte3/plugins/otherplugin/button/dataTables.buttons.min.js') }}"></script> --}}
+        {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> --}}
+        <link href="{{ asset('/sb-admin-pro/bootstrap.min.css')}}" rel="stylesheet" crossorigin="anonymous" />
+        
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select2.min.css')}}">
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select2-bootstrap4.min.css')}}">
+        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/select/select1.bootstrap4.min.css')}}">
+        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/button/buttons.bootstrap4.min.css')}}">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/leaflet.label.css')}}">
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+        <script src="{{ asset('/sb-admin-pro/leaflet.label.js')}}"></script> 
+      </head>
+    <body class="nav-fixed sidenav-toggled">
+        <nav class="topnav navbar navbar-expand shadow navbar-light bg-white" id="sidenavAccordion">
+            <a class="navbar-brand" href="{{url('/home')}}">Data Covid Peruri</a>
+            <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 mr-lg-2" id="sidebarToggle" href="#"><i data-feather="menu"></i></button>
+            {{-- <form class="form-inline mr-auto d-none d-md-block">
+                <div class="input-group input-group-joined input-group-solid">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i data-feather="search"></i></div>
+                    </div>
+                </div>
+            </form> --}}
+            <ul class="navbar-nav align-items-center ml-auto">
+                {{-- <li class="nav-item dropdown no-caret mr-3 d-none d-md-inline">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownDocs" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <div class="d-none d-md-inline font-weight-500">Documentation</div>
+                        <i class="fas fa-chevron-right dropdown-arrow"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right py-0 mr-sm-n15 mr-lg-0 o-hidden animated--fade-in-up" aria-labelledby="navbarDropdownDocs">
+                        <a class="dropdown-item py-3" href="https://docs.startbootstrap.com/sb-admin-pro" target="_blank">
+                            <div class="icon-stack bg-primary-soft text-primary mr-4"><i data-feather="book"></i></div>
+                            <div>
+                                <div class="small text-gray-500">Documentation</div>
+                                Usage instructions and reference
+                            </div>
+                        </a>
+                        <div class="dropdown-divider m-0"></div>
+                        <a class="dropdown-item py-3" href="https://docs.startbootstrap.com/sb-admin-pro/components" target="_blank">
+                            <div class="icon-stack bg-primary-soft text-primary mr-4"><i data-feather="code"></i></div>
+                            <div>
+                                <div class="small text-gray-500">Components</div>
+                                Code snippets and reference
+                            </div>
+                        </a>
+                        <div class="dropdown-divider m-0"></div>
+                        <a class="dropdown-item py-3" href="https://docs.startbootstrap.com/sb-admin-pro/changelog" target="_blank">
+                            <div class="icon-stack bg-primary-soft text-primary mr-4"><i data-feather="file-text"></i></div>
+                            <div>
+                                <div class="small text-gray-500">Changelog</div>
+                                Updates and changes
+                            </div>
+                        </a>
+                    </div>
+                </li> --}}
+                {{-- <li class="nav-item dropdown no-caret mr-3 d-md-none">
+                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="searchDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="search"></i></a>
+                    <!-- Dropdown - Search-->
+                    <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--fade-in-up" aria-labelledby="searchDropdown">
+                        <form class="form-inline mr-auto w-100">
+                            <div class="input-group input-group-joined input-group-solid">
+                                <input class="form-control" type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" />
+                                <div class="input-group-append">
+                                    <div class="input-group-text"><i data-feather="search"></i></div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </li>
-                
+                <li class="nav-item dropdown no-caret mr-3 dropdown-notifications">
+                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownAlerts" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="bell"></i></a>
+                    <div class="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownAlerts">
+                        <h6 class="dropdown-header dropdown-notifications-header">
+                            <i class="mr-2" data-feather="bell"></i>
+                            Alerts Center
+                        </h6>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <div class="dropdown-notifications-item-icon bg-warning"><i data-feather="activity"></i></div>
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-details">December 29, 2019</div>
+                                <div class="dropdown-notifications-item-content-text">This is an alert message. It's nothing serious, but it requires your attention.</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <div class="dropdown-notifications-item-icon bg-info"><i data-feather="bar-chart"></i></div>
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-details">December 22, 2019</div>
+                                <div class="dropdown-notifications-item-content-text">A new monthly report is ready. Click here to view!</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <div class="dropdown-notifications-item-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-details">December 8, 2019</div>
+                                <div class="dropdown-notifications-item-content-text">Critical system failure, systems shutting down.</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <div class="dropdown-notifications-item-icon bg-success"><i data-feather="user-plus"></i></div>
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-details">December 2, 2019</div>
+                                <div class="dropdown-notifications-item-content-text">New user request. Woody has requested access to the organization.</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-footer" href="#!">View All Alerts</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown no-caret mr-3 dropdown-notifications">
+                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownMessages" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="mail"></i></a>
+                    <div class="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownMessages">
+                        <h6 class="dropdown-header dropdown-notifications-header">
+                            <i class="mr-2" data-feather="mail"></i>
+                            Message Center
+                        </h6>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <img class="dropdown-notifications-item-img" src="https://source.unsplash.com/vTL_qy03D1I/60x60" />
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                                <div class="dropdown-notifications-item-content-details">Emily Fowler · 58m</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-item" href="#!">
+                            <img class="dropdown-notifications-item-img" src="https://source.unsplash.com/4ytMf8MgJlY/60x60" />
+                            <div class="dropdown-notifications-item-content">
+                                <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                                <div class="dropdown-notifications-item-content-details">Diane Chambers · 2d</div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item dropdown-notifications-footer" href="#!">Read All Messages</a>
+                    </div>
+                </li> --}}
+                {{-- <li class="nav-item dropdown no-caret mr-2 dropdown-user">
+                    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" /></a>
+                    <div class="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
+                        <h6 class="dropdown-header d-flex align-items-center">
+                            <img class="dropdown-user-img" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" />
+                            <div class="dropdown-user-details">
+                                <div class="dropdown-user-details-name">Valerie Luna</div>
+                                <div class="dropdown-user-details-email">vluna@aol.com</div>
+                            </div>
+                        </h6>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#!">
+                            <div class="dropdown-item-icon"><i data-feather="settings"></i></div>
+                            Account
+                        </a> --}}
+                        {{-- <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();localStorage.clear();">
+                            <i class="material-icons">logout</i>
+                            <p> Logout </p>
+                          </a> --}}
+                        {{-- <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();localStorage.clear();"">
+                            <div class="dropdown-item-icon"><i data-feather="log-out"></i></div>
+                            Logout
+                        </a> --}}
+                    {{-- </div>
+                </li> --}}
             </ul>
         </nav>
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <!-- Brand Logo -->
-            <a href="../index3.html" class="brand-link">
-                <img src="{{ asset('/img/logo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-                    style="opacity: .8">
-                <span class="brand-text font-weight-light">JSEA Reviewer</span>
-            </a>
-
-            <!-- Sidebar -->
-
-            <div class="sidebar">
-                @if (Auth::check())
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="{{ asset('/img/'. auth()->user()->avatar) }}" class="img-circle elevation-2"
-                            alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">{{auth()->user()->name}}</a>
-                    </div>
-                </div>
-                @else
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="{{ asset('/img/logo.png') }}" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">user</a>
-                    </div>
-                </div>
-                @endif
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                        @include('layouts.sidebar')
-
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sidenav shadow-right sidenav-light">
+                  @include('layouts.sidebar')
+                    
                 </nav>
-                <!-- /.sidebar-menu -->
             </div>
-            <!-- /.sidebar -->
-        </aside>
+            <div id="layoutSidenav_content">
+                <main>
+                    @yield('header')
+                    
+                    <!-- Main page content-->
+                    <div class="container mt-n10">
+                      @yield('content')
 
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <section class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            @yield('title')
-                        </div>
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                @yield('breadcrumb')
-                            </ol>
+                    
+                    </div>
+                </main>
+                {{-- <footer class="footer mt-auto footer-light">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6 small">Copyright &copy;Peruri {!! date("Y") !!} </div>
+                            <div class="col-md-6 text-md-right small">
+                                <a href="#!">Privacy Policy</a>
+                                &middot;
+                                <a href="#!">Terms &amp; Conditions</a>
+                            </div>
                         </div>
                     </div>
-                </div><!-- /.container-fluid -->
-            </section>
-
-            <!-- Main content -->
-            <section class="content">
-                <div class="container-fluid">
-                    @yield('content')
-
-                </div><!-- /.container-fluid -->
-            </section>
-            <!-- /.content -->
-        </div>
-        <!-- /.content-wrapper -->
-
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-block">
-                <b>Version</b> 1.0.0
+                </footer> --}}
             </div>
-            <strong>Copyright &copy; {!! date("Y") !!} <a href="#">Peruri</a>.</strong> All rights reserved.
-        </footer>
-
-
-        {{-- <link rel="stylesheet" href="../../plugins/"> --}}
-        <script src="{{ asset('/adminlte3/plugins/jquery/jquery.min.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('/adminlte3/plugins/moment/moment.min.js') }}"></script>
-        <script src="{{ asset('/adminlte3/plugins/daterangepicker/daterangepicker.js') }}"></script>
-        {{-- <script src="{{ asset('/adminlte3/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}">
-        --}}
-        </script>
-        <!-- Bootstrap -->
+        </div>
+       
+        <script src="{{ asset('/sb-admin-pro/jquery-3.5.1.min.js') }}" crossorigin="anonymous"></script>
         <script src="{{ asset('/adminlte3/plugins/select2/js/select2.full.min.js') }}"></script>
-        <script src="{{ asset('/adminlte3/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- jQuery UI -->
-        <script src="{{ asset('/adminlte3/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-        <!-- AdminLTE App -->
-        <script src="{{ asset('/adminlte3/dist/js/adminlte.min.js') }}"></script>
-        <!-- AdminLTE for demo purposes -->
-        <script src="{{ asset('/adminlte3/dist/js/demo.js') }}"></script>
-        <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
-        <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
-        <script type="text/javascript" src="{{ asset('/adminlte3/plugins/toastr/toastr.min.js') }}"></script>
-        <script src="{{ asset('/adminlte3/plugins/datatables/jquery.dataTables.js') }}"></script>
-        <script src="{{ asset('/adminlte3/plugins/datatables-bs4/js/dataTables.bootstrap4.js') }}"></script>
-        <script src="{{ asset('/adminlte3/plugins/moment/moment.min.js')}}"></script>
-        <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.bootstrap4.min.js"></script>
-        <script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+        <script src="{{ asset('/sb-admin-pro/bootstrap.bundle.min.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/js/scripts.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/Chart.min.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/chartjs-plugin-datalabels@0.7.0.js') }}" crossorigin="anonymous"></script>
         
+        {{-- <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-area-demo.js')}}"></script> --}}
+        {{-- <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-bar-demo.js')}}"></script> --}}
+        <script src="{{ asset('/sb-admin-pro/jquery.dataTables.min.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/dataTables.bootstrap4.min.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/assets/demo/datatables-demo.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/moment.min.js') }}" crossorigin="anonymous"></script>
+        <script src="{{ asset('/sb-admin-pro/daterangepicker.min.js') }}" crossorigin="anonymous"></script>
+        {{-- <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script> --}}
+        <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-bar-overview.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-area.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-pie-persebaran.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/js/moment-with-locales.min.js')}}"></script>
+        <link href="{{ asset('/material-bootstrap/filepond.css')}}" rel="stylesheet" />
+        <script src="{{ asset('/material-bootstrap/filepond.js')}}" rel="stylesheet"></script>
         
-        <script>
-            $(document).ready(function () {
-                var pProv = {
-
-                    tahun: '2020'
-                }
-                $.ajax({
-                    url: "{{ route('notifikasi.data') }}",
-                    method: "POST",
-                    headers: {
-
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        "accept": "application/json",
-                        "Access-Control-Allow-Origin": "*"
-                    },
-                    data: pProv,
-                    dataType: "json",
-
-                    success: function (data) {
-                        console.log(data)
-                        // var cekdata = data.dataNotifikasi
-                        // var dataKapasitas = data.notifikasiKapasitas
-                        // var arrSum = parseInt(0)
-                        // var arrSumKadaluarsa = parseInt(0)
-                        // var arrKapasitas = parseInt(0)
-                        // if (cekdata == null && dataKapasitas.length ==0) {
-                        //     $('#jumlahnotif').text(0)
-                        //      $('#divkapasitas').append('<a href="#" class="dropdown-item">'+
-                        //             '</i>Tidak Ada Notifikasi</a>');
-                        // } else {
-                        //     if (cekdata != null){
-                        //         var dataValues = data.dataNotifikasi.values
-                        //     var dataKapasitas = data.notifikasiKapasitas 
-                        //     var dataTangal = data.dataNotifikasikeys
-                        //     console.log(dataValues)
-                        //     for (i = 0; i < dataValues.length; i++) { 
-                        //         arrSum += parseInt(dataValues[i].jumlah)
-                        //         arrSumKadaluarsa +=parseInt(dataValues[i].jumlah)
-
-                        //         $('#divkapasitas').append('<a href="#" class="dropdown-item">'+
-                        //             '<i class="far fa-bell"></i> '+dataValues[i].jumlah+" Limbah <br>Kadaluarsa Tanggal "+moment(dataValues[i].tanggal).format('DD/MM/YYYY')+'</a>');
-                        //     } 
-                        //     toastr.error(arrSumKadaluarsa+' Limbah akan kadaluarsa', 'Perhatian', {
-                        //         timeOut: 5000
-                        //     }); 
-                        //     }else{
-                        //         // $('#divkapasitas').append('<a href="#" class="dropdown-item">'+
-                        //         //     '<i class="far fa-bell"></i>-</a>');
-                        //     }
-                            
-                             
-                        //     if(dataKapasitas.length != 0){
-                        //         arrSum += dataKapasitas.length
-                        //         arrKapasitas += dataKapasitas.length
-                        //         for(j = 0; j < dataKapasitas.length; j++){
-                        //             $('#divkapasitas').append('<a href="#" class="dropdown-item">'+
-                        //             '<i class="far fa-bell"></i> '+dataKapasitas[j].tps+' - '+dataKapasitas[j].saldo+'/'+dataKapasitas[j].kapasitas+" <br>Status "+dataKapasitas[j].status+'</a>');
-                                    
-                        //         }
-                        //         toastr.error(arrKapasitas+' Kapasitas Akan Penuh', 'Perhatian', {
-                        //         timeOut: 5000
-                        //     });
-                        //     }else{
-                        //         // $('#divkapasitas').append('<a href="#" class="dropdown-item">'+
-                        //         //     '<i class="far fa-bell"></i>-</a>');
-                        //     }
-                            
-                        //     $('#jumlahnotif').text(arrSum) 
-                        //     $('#jmlhnotif').text(arrSum + ' Notifikasi') 
-                           
-                        // }
-
-
-
-
-
-                    }
-
-                });
-            })
-
-        </script>
-
-
-
-
-        {{-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> --}}
-
-        <!-- Page specific script -->
-
-        @yield('scripts')
-</body>
-
+        {{-- <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script> --}}
+        <script src="{{ asset('/material-bootstrap/sweetalert2.all.min.js')}}"></script>
+        <script src="{{ asset('/material-bootstrap/filepond-plugin-file-validate-type.js')}}" rel="stylesheet"></script>
+        <script src="{{ asset('/sb-admin-pro/dist/assets/demo/datatables.js')}}"></script>
+        {{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
+        
+        <script src="{{ asset('/sb-admin-pro/bootstrap.min.js') }}"  crossorigin="anonymous"></script>
+<!-- select2 -->
+<script src="{{ asset('/sb-admin-pro/select2.min.js') }}" crossorigin="anonymous"></script>
+       
+<script src="{{ asset('/adminlte3/plugins/gijgo/gijgo.min.js')}}" type="text/javascript"></script>
+<link href="{{ asset('/adminlte3/plugins/gijgo/gijgo.min.css')}}" rel="stylesheet" type="text/css" />
+<script src="{{ asset('/adminlte3/plugins/otherplugin/select/dataTables.select1.min.js') }}"></script> 
+<script src="{{ asset('/adminlte3/plugins/otherplugin/button/dataTables.buttons.min.js') }}"></script>
+{{-- <script src="{{ asset('/adminlte3/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"> --}}
+{{-- </script> --}}
+@yield('scripts')
+      </body>
 </html>

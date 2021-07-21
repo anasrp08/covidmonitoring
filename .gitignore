@@ -1,6 +1,10 @@
 /node_modules
 /public/hot
 /public/storage
+/public/file_apresiasi/
+/public/datakaryawan/
+/public/master_data/
+/public/file_covid/
 /storage/*.key
 /vendor
 .env

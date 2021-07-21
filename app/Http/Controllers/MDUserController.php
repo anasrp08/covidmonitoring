@@ -50,7 +50,7 @@ class MDUserController extends Controller
             return datatables()->of($queryData) 
                      
                     ->addIndexColumn()
-                    ->addColumn('action', 'action_butt_pemohon')
+                    ->addColumn('action', 'action_daftar_tender')
                     ->rawColumns(['action'])
                     
                     ->make(true);

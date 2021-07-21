@@ -1,714 +1,955 @@
 @extends('layouts.app')
 
-@section('content')
+@section('title')
+<title>Dashboard - Peruri Covid</title>
+@endsection
 <style>
-    #tbl_jsea tbody tr {
+    #mapkrw {
+        height: 600px;
 
-        cursor: pointer;
+        /* width: 600px; */
     }
 
+    #mapjkt {
+        height: 600px;
+        margin-bottom: 5rem;
+        /* width: 600px; */
+    }
+
+    .custom .leaflet-popup-tip,
+    .custom .leaflet-popup-content-wrapper {
+        background: #033075;
+        color: #fff;
+    }
+    .fontDetail{
+        color: #fff;
+        width:18rem;
+        font-style: bold;
+        font-size: 13px;
+    }
+    td {
+            white-space: nowrap;
+         }
+
 </style>
-{{-- <div class="container"> --}}
-<section class="col-lg-12 connectedSortable">
-    <div class="card card-primary card-tabs">
-        <div class="card-header">
-            <h4 id='title_konfirmasi' class="modal-title">Dashboard</h4>
-        </div>
-        <div class="card-body">
-            <div class="card-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill"
-                            href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home"
-                            aria-selected="true">Summary</a>
-                    </li>
-                    {{-- <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-one-profile-tab" data-toggle="pill"
-                            href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile"
-                            aria-selected="false">Grafik</a>
-                    </li> --}}
-    
-                </ul>
-            </div>
-            <div class="tab-content" id="custom-tabs-one-tabContent">
-                <div class="tab-pane fade show active" id="custom-tabs-one-home" role="tabpanel"
-                    aria-labelledby="custom-tabs-one-home-tab">
-                     
-                        @include('dashboard.banner') 
+
+@section('header')
+<header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+    <div class="container">
+        <div class="page-header-content pt-4">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto mt-4">
+                    <h1 class="page-header-title">
+                        <div class="page-header-icon"><i data-feather="clock"></i></div>
+                        {{-- Dashboard Covid Case Peruri --}}
+                    </h1>
+                    {{-- <div class="page-header-subtitle">Summary Dashboard Covid Case Peruri</div> --}}
+                    <div class="page-header-subtitle" id='tanggal'>
+
+                        <span class="font-weight-900 text-warning" id='day'></span>
+                        {{-- &middot; September 20, 2020 &middot; 12:16 PM --}}
+                    </div>
                 </div>
-                
-            @if (Auth::check())
-            @role(['admin','pengadaan'])
-            @include('dashboard.tbl_daftar_jsea')
-            @endrole
-            @endif
-            @include('dashboard.detail')
+                <div class="col-12 col-xl-auto mt-4">
+                    {{-- <button class="btn btn-white btn-sm line-height-normal p-3" id="reportrange">
+                    <i class="mr-2 text-primary" data-feather="calendar"></i>
+                    <span></span>
+                    <i class="ml-1" data-feather="chevron-down"></i>
+                </button> --}}
+                </div>
+            </div>
         </div>
-
     </div>
-    </div>
-</section>
-{{-- </div> --}}
+</header>
+@endsection
 
+@section('content')
+<style>
+
+
+</style>
+<div class="row">
+    <div class="col-xxl-12 col-xl-12 mb-4">
+        <div class="card h-100">
+            <div class="card-body h-100 d-flex flex-column justify-content-center py-5 py-xl-4">
+                <div class="row align-items-center">
+                    <div class="col-xl-8 col-xxl-12">
+                        <div class="text-center px-4 mb-4 mb-xl-0 mb-xxl-4">
+                            <h1 class="text-primary">Welcome Back!</h1>
+                            <p class="text-gray-700 mb-0">Summary Dashboard Covid Case Peruri</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-xxl-12 text-center"><img class="img-fluid"
+                            src="{{ asset('/sb-admin-pro/dist/assets/img/freepik/statistics-pana.svg')}}"
+                            style="max-width: 26rem;" /></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@include('dashboard.summary')
+
+
+<!-- Example Charts for Dashboard Demo-->
+@include('dashboard.chart_bar')
 @endsection
 @section('scripts')
-<script src="{{ asset('/adminlte3/chartjs/Chart.bundle.min.js') }}"></script>
-<script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 
+<script src="{{ asset('/sb-admin-pro/dist/assets/demo/date-range-picker-demo.js')}}"></script>
 
 <script>
     $(document).ready(function () {
-        // Loaded via <script> tag, create shortcut to access PDF.js exports.
-var pdfjsLib = window['pdfjs-dist/build/pdf'];
-// The workerSrc property shall be specified.
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+       
 
-$("#file_jsea").on("change", function(e){
-	var file = e.target.files[0]
-	if(file.type == "application/pdf"){
-		var fileReader = new FileReader();  
-		fileReader.onload = function() {
-			var pdfData = new Uint8Array(this.result);
-			// Using DocumentInitParameters object to load binary data.
-			var loadingTask = pdfjsLib.getDocument({data: pdfData});
-			loadingTask.promise.then(function(pdf) {
-			  console.log('PDF loaded');
-			  
-			  // Fetch the first page
-			  var pageNumber = 1;
-			  pdf.getPage(pageNumber).then(function(page) {
-				console.log('Page loaded');
-				
-				var scale = 1.5;
-				var viewport = page.getViewport({scale: scale});
+        var mapKRW = L.map('mapkrw', {
+            center: [-6.00, 107.00],
+            zoom: 15
+        }).setView([-6.3633402764649825, 107.30693018200354], 17);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mapKRW);
 
-				// Prepare canvas using PDF page dimensions
-				var canvas = $("#pdfViewer")[0];
-				var context = canvas.getContext('2d');
-				canvas.height = viewport.height;
-				canvas.width = viewport.width;
-
-				// Render PDF page into canvas context
-				var renderContext = {
-				  canvasContext: context,
-				  viewport: viewport
-				};
-				var renderTask = page.render(renderContext);
-				renderTask.promise.then(function () {
-				  console.log('Page rendered');
-				});
-			  });
-			}, function (reason) {
-			  // PDF loading error
-			  console.error(reason);
-			});
-		};
-		fileReader.readAsArrayBuffer(file);
-	}
-});
-//         $('#period').datepicker({
-//             // uiLibrary: 'bootstrap4',
-//             // defaultDate: new Date(),
-//     format: "yyyy",
-//     viewMode: "years",
-//     minViewMode: "years",
-//     changeMonth: false,
-//         changeYear: true,
-// });
-
- 
-        // $('#period').datepicker({
-        //     uiLibrary: 'bootstrap4',
-        //     todayHighlight: true,
-        //     format: "mm/yyyy",
-        //     defaultDate: new Date(),
-        //     viewMode: "months",
-        //     minViewMode: "months"
+        var mapJKT = L.map('mapjkt', {
+            center: [-6.00, 107.00],
+            zoom: 20
+        }).setView([-6.24096, 106.79959], 20);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mapJKT);
+        // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYW5hc3JwMDgiLCJhIjoiY2tyOTZna3cwNDY3NDMxbzZ2bnRvZ3ZzciJ9.3DkPyDPh4PWQmJObOzcgOg', {
+        //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        //     maxZoom: 18,
+        //     id: 'mapbox/streets-v11',
+        //     tileSize: 512,
+        //     zoomOffset: -1,
+        //     accessToken: 'pk.eyJ1IjoiYW5hc3JwMDgiLCJhIjoiY2tyOTZna3cwNDY3NDMxbzZ2bnRvZ3ZzciJ9.3DkPyDPh4PWQmJObOzcgOg'
+        // }).addTo(mapKRW);
+        // $("a[href='#peruri_jakarta']").on('shown.bs.tab', function (e) { 
+        //     mapJKT.invalidateSize();
         // });
-        // $('#period').val(moment().format('YYYY'))
-
-        $('.select2bs4').select2({
-            theme: 'bootstrap4'
-        })
-
-        var chartBulan = new Chart(document.getElementById("permintaan"), {
-            type: 'bar',
-            data: {
-                labels: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli",
-                    "Agustus",
-                    "September", "Oktober", "November", "Desember"
-                ],
-                datasets: [{
-                        label: "Jumlah Permintaan",
-                        backgroundColor: "#ff5722",
-                        data: ''
-                    },
-                    {
-                        label: "Permintaan On Progress",
-                        backgroundColor: "#ff9800",
-                        data: ''
-                    },
-                    {
-                        label: "Permintaan Selesai",
-                        backgroundColor: "#4caf50",
-                        data: ''
-                    }
-
-                ]
-            },
-            options: {
-                scales: {
-            yAxes: [{
-                ticks: {
-                    // Include a dollar sign in the ticks
-                    callback: function(value, index, values) {
-                        return value+' '+'Permintaan'
-                        
-                    },
-                    beginAtZero: true,
-                    stepSize: 5
-
-                }
-            }]
-        },
-                 
-                // tooltips: {
-                //     callbacks: {
-                //         // title: function (tooltipItem, data) {
-                //         //     return data['labels'][tooltipItem[0]['index']];
-                //         // },
-                //         label: function (tooltipItem, data) {
-                //             var formattedjumlah = data['datasets'][0]['data'][tooltipItem['index']]
-                //             console.log(namalimbah)
-                //             var finalValue = null
-                //             var satuan = null
-                //             if (namalimbah == 1 || namalimbah == 2 || namalimbah == 3 ||
-                //                 namalimbah == 17 || namalimbah == 20) {
-                //                 finalValue = parseInt(formattedjumlah) / parseInt(1000)
-                //                 satuan = 'm3'
-                //             } else {
-                //                 finalValue = parseInt(formattedjumlah) / parseInt(1000)
-                //                 satuan = 'ton'
-                //             }
-                //             return formattedjumlah + ' ' + satuan
-                //             // return data['datasets'];
-                //         },
-                //         // afterLabel: function (tooltipItem, data) {
-                //         //     var dataset = data['datasets'][0];
-
-
-                //         //     return "Presentase: " + '(' + dataset + '%)';
-                //         //     // return data;
-                //         // }
-                //     },
-
-                // }
-            }
+        $("a[href='#activities2']").on('shown.bs.tab', function (e) { 
+            mapJKT.invalidateSize();
         });
-        $('#period').val(new Date().getFullYear()).change()
-        var paramData = {
-            period: $('#period').val() 
-        }
-        $('#period').on('change', function () {
-            namalimbah = $('#namalimbah').val()
-            var paramData = {
-                period: $('#period').val() 
-            }
-            getDataGrafik(paramData)
-            // updateChart(chart, value,paramData)
+        $("a[href='#peruri_krw']").on('shown.bs.tab', function (e) {
+            mapKRW.invalidateSize(); 
+        });
 
-        })
-        
-        getDataGrafik(paramData)
+         // 0=ijo
+        // >=1= kuning keijoang
+        // >5 = kuning
+        // >10 = merah
 
-        function getDataGrafik(paramData) {
-
-            $.ajax({
-                url: "{{ route('grafik.data') }}",
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                    "accept": "application/json",
-                    "Access-Control-Allow-Origin": "*"
-                },
-                data: paramData,
-                dataType: "json",
-
-                success: function (data) {
-                    console.log(data)
-                    console.log(chartBulan.data.datasets)
-                     
-                    var dataJumlah = data.dataPermintaan
-                    var dataOnprogress = data.dataOnProgress
-                    var dataSelesai = data.dataSelesai
-
-                    chartBulan.data.datasets[0].data = dataJumlah
-                    chartBulan.data.datasets[1].data = dataOnprogress
-                    chartBulan.data.datasets[2].data = dataSelesai
-                    chartBulan.update();
-
-                }
-            });
-        }
-        var table = $('#tbl_jsea').DataTable({
-            processing: true,
-            serverSide: true,
-            scrollCollapse: true,
-            scrollX: true,
-            paging: true,
-            dom: '<"right">lrtip<"clear">',
-            // buttons: [{
-            //         text: 'Terima',
-            //         className: 'btn btn-success',
-            //         action: function (e, dt, node, config) {
-            //             $('#title_konfirmasi').text('Diterima Oleh: ')
-            //             $('#hidden_transaksi').val('terima')
-            //             $('#modalconfirm').modal('show')
-
-            //         }
+        var colorRed='#b71c1c'
+        var colorYellow='#ffeb3b'
+        var colorOrange='#f57c00'
+        var colorGreen='#388e3c'
+        // var marker = L.marker([-6.363310, 107.307274]).addTo(mapKRW);
+        var circleSDM = [-6.36377, 107.30797];
+        var gedWTP = [-6.36809, 107.30572]
 
 
-            //     },
-            //     {
-            //         text: 'Validasi',
-            //         className: 'btn btn-info',
-            //         action: function (e, dt, node, config) {
-            //             $('#title_konfirmasi').text('Divalidasi Oleh: ')
-            //             $('#hidden_transaksi').val('validasi')
-            //             $('#modalconfirm').modal('show')
-
-            //         }
-
-
-            //     },
-            //     {
-            //         extend: "selectAll",
-            //         text: 'Pilih Semua',
-            //         className: 'btn btn-default',
-            //     },
-            //     {
-            //         extend: 'selectNone',
-            //         text: 'Batal Pilih Semua',
-            //         className: 'btn btn-default',
-            //     },
-            // ],
-            columnDefs: [{
-                    className: 'text-center',
-                    targets: [1, 2, 3]
-                },
-                {
-                    className: 'dt-body-nowrap',
-                    targets: -1
-                }
-            ],
-            select: true,
-            language: {
-                emptyTable: "Tidak Ada Data"
-            },
-            search: {
-                caseInsensitive: false
-            },
-            ajax: {
-                url: "{{ route('dashboard.data') }}",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                data: function (d) {
-
-                    d.tahun = new Date().getFullYear()
-
-
-
-
-
-                }
-            },
-            // bFilter: false,
-
-
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'number',
-                    name: 'number'
-                },
-                {
-                    data: 'no_sppj',
-                    name: 'no_sppj'
-                },
-                // {
-                //     data: 'no_jsea',
-                //     name: 'no_jsea'
-                // },
-
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'status_tender',
-                    name: 'status_tender'
-                },
-
-
-                {
-                    data: 'nama_vendor',
-                    name: 'nama_vendor'
-                },
-
-
-
-                // {
-                //     data: 'doc_upload',
-                //     name: 'doc_upload',
-                //     render: function (data, type, row) {
-                //         if (data == null || data == "-" || data == "0000-00-00 00:00:00" ||
-                //             data == "NULL") {
-                //             return '<span>-</span>'
-                //         } else {
-                //             return moment(data).format('DD/MM/YYYY');
-                //         }
-
-                //     }
-                // },
-                {
-                    data: 'status_review',
-                    name: 'status_review',
-                    render: function (data, type, row) {
-
-                        return '<span class="badge badge-info">Belum Review</span>'
-
-
-                    }
-                },
-                {
-                    data: 'tender_dibuat',
-                    name: 'tender_dibuat',
-                    render: function (data, type, row) {
-                        if (data == null || data == "-" || data == "0000-00-00 00:00:00" ||
-                            data == "NULL") {
-                            return '<span>-</span>'
-                        } else {
-                            return moment(data).format('DD/MM/YYYY');
-                        }
-
-                    }
-                },
-                {
-                    data: 'tender_update',
-                    name: 'tender_update',
-                    render: function (data, type, row) {
-                        if (data == null || data == "-" || data == "0000-00-00 00:00:00" ||
-                            data == "NULL") {
-                            return '<span>-</span>'
-                        } else {
-                            return moment(data).format('DD/MM/YYYY');
-                        }
-
-                    }
-                },
-
-                // {
-                //     data: 'action',
-                //     name: 'action',
-                //     render: function (data, type, row) {
-                //        if(row.status_review=='belum'){
-                //         return '<button href="javascript:void(0)" name="lihat"  data-id="'+row.id_tender+'" data-original-title="Lihat" class="lihat btn btn-info edit-user">'+
-                //                 'Lihat </button>'
-                //        }else{
-
-                //        } 
-                //    },
-
-
-                //     orderable: false
-
-                // }
+        var latMako = [
+            [
+                [-6.36077, 107.3084],
+                [-6.36102, 107.3084],
+                [-6.36103, 107.30842],
+                [-6.36112, 107.30842],
+                [-6.36112, 107.30848],
+                [-6.36076, 107.30848]
             ]
-        });
-        var pProv = {
-            tahun: new Date().getFullYear()
-        }
-        $.ajax({
-            url: "{{ route('banner.data') }}",
-            method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                "accept": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            },
-            data: pProv,
-            dataType: "json",
+        ];
+        var gedLiniA = [
+            [
+                [-6.36337, 107.30497],
+                [-6.36151, 107.30596],
+                [-6.36191, 107.30675],
+                [-6.36376, 107.30574]
+            ]
+        ];
 
-            success: function (data) {
 
-                // updateChart(dataKapasitas[6].saldo)
+        var gedungUtilitas = [
+            [
+                [-6.36343, 107.30475],
+                [-6.36396, 107.3057],
+                [-6.36452, 107.30542],
+                [-6.36411, 107.30477],
+                [-6.36342, 107.30475]
+            ]
+        ];
+        var gedungPengolahanLimbah = [
+            [
+                [-6.36422, 107.30476],
+                [-6.36561, 107.30488],
+                [-6.36462, 107.3054]
+            ]
+        ];
+
+        var gedungLiniB = [
+            [
+                [-6.36706, 107.30395],
+                [-6.36588, 107.3047],
+                [-6.3662, 107.30545],
+                [-6.36746, 107.30472]
+            ]
+        ];
+
+        var gudangTengah = [
+            [
+                [-6.36738, 107.30409],
+                [-6.36785, 107.30385],
+                [-6.36811, 107.30434],
+                [-6.36762, 107.30458]
+            ]
+        ];
+        var gedungArsip = [
+            [
+                [-6.3687, 107.30479],
+                [-6.36879, 107.30495],
+                [-6.36918, 107.30474],
+                [-6.36911, 107.30457]
+            ]
+        ];
+
+        var gedungPengadaan = [
+            [
+                [-6.36802, 107.30343],
+                [-6.36838, 107.30415],
+                [-6.36879, 107.30397],
+                [-6.36839, 107.30323]
+            ]
+        ];
+        var gudangTasganu = [
+            [
+                [-6.37022, 107.3048],
+                [-6.37033, 107.30502],
+                [-6.37079, 107.3048],
+                [-6.37069, 107.30458]
+            ]
+        ];
+        var gedungLiniInternational = [
+            [
+                [-6.37002, 107.30439],
+                [-6.37021, 107.30479],
+                [-6.37068, 107.30453],
+                [-6.37047, 107.30416]
+            ]
+        ];
+        var gedungUgam = [
+            [
+                [-6.37102, 107.302],
+                [-6.36964, 107.30295],
+                [-6.36985, 107.30335],
+                [-6.37134, 107.30258]
+            ]
+        ];
+        var gedungCekai = [
+            [
+                [-6.37059, 107.30409],
+                [-6.37133, 107.3056],
+                [-6.37172, 107.3054],
+                [-6.37093, 107.30388]
+            ]
+        ];
+        var gedungTasganu = [
+            [
+                [-6.37111, 107.30389],
+                [-6.37188, 107.30532],
+                [-6.37258, 107.30494],
+                [-6.37182, 107.30355]
+            ]
+        ];
+        var gedungPusyantek = [
+            [
+                [-6.37247, 107.30291],
+                [-6.37293, 107.30386],
+                [-6.37338, 107.30367],
+                [-6.37295, 107.30269]
+            ]
+        ];
+
+        //jakarta
+        var gedUtama = [
+            [
+                [-6.24047, 106.80003],
+                [-6.24047, 106.80033],
+                [-6.24118, 106.80032],
+                [-6.24118, 106.79915],
+                [-6.24107, 106.79914],
+                [-6.24105, 106.80004]
+            ]
+        ];
+
+
+        var gedExproduksi = [
+            [
+                [-6.24033, 106.80002],
+                [-6.24104, 106.80003],
+                [-6.24108, 106.79901],
+                [-6.24034, 106.79899]
+            ]
+        ];
+        var gedDepjul = [
+            [
+                [-6.24134, 106.80068],
+                [-6.2415, 106.80069],
+                [-6.24151, 106.80045],
+                [-6.24134, 106.80044],
+            ]
+        ];
+
+        var gedPelita = [
+            [
+                [-6.24145, 106.79991],
+                [-6.24144, 106.80007],
+                [-6.24178, 106.80007],
+                [-6.24177, 106.79991]
+            ]
+        ];
+
+        var gedAngkutan = [
+            [
+                [-6.24173, 106.80023],
+                [-6.24174, 106.80043],
+                [-6.24184, 106.80044],
+                [-6.24183, 106.80023]
+            ]
+        ];
+        var gedDepjul2 = [
+            [
+                [-6.24193, 106.79931],
+                [-6.24193, 106.79967],
+                [-6.24212, 106.79967],
+                [-6.24211, 106.79931]
+            ]
+        ];
+
+        var areaMako = setPolygonRadius(latMako, colorGreen, '', mapKRW, 'Gedung Mako & Damkar')
+        var areaLiniA = setPolygonRadius(gedLiniA, colorGreen, '', mapKRW, 'Gedung LINI A')
+        var areaUtilitas = setPolygonRadius(gedungUtilitas, colorGreen, '', mapKRW, 'Gedung Utilitas')
+        var areaLimbah = setPolygonRadius(gedungPengolahanLimbah, colorGreen, '', mapKRW,
+            'Gedung Pengelolan Limbah')
+        var areaLiniB = setPolygonRadius(gedungLiniB, colorGreen, '', mapKRW, 'Gedung LINI B')
+        var areaGudTengah = setPolygonRadius(gudangTengah, colorGreen, '', mapKRW, 'Gudang Tengah')
+        var areaArsip = setPolygonRadius(gedungArsip, colorGreen, '', mapKRW, 'Gedung Arsip')
+        var areaPengadaan = setPolygonRadius(gedungPengadaan, colorGreen, '', mapKRW, 'Gedung Pengadaan')
+        var areaGudangTasganu = setPolygonRadius(gudangTasganu, colorGreen, '', mapKRW, 'Gudang Tasganu')
+        var areaLiniInternational = setPolygonRadius(gedungLiniInternational, colorGreen, '', mapKRW,
+            'Gedung Lini International')
+        var areaUgam = setPolygonRadius(gedungUgam, colorGreen, '', mapKRW, 'Gedung UGAM')
+        var areaCekai = setPolygonRadius(gedungCekai, colorGreen, '', mapKRW, 'Gedung Cekai')
+        var areatasganu = setPolygonRadius(gedungTasganu, colorGreen, '', mapKRW, 'Gedung Tasganu')
+        var areaPusyantek = setPolygonRadius(gedungPusyantek, colorGreen, '', mapKRW, 'Gedung Pusyantek') 
+        var areaSDM = setCircleRadius(circleSDM, colorRed, 40, 'tes', mapKRW, 'Gedung SDM')
+        var areaWTP = setCircleRadius(gedWTP, colorRed, 40, 'tes12', mapKRW, 'Gedung WTP') 
+
+        //jakarta
+        var areaUtama = setPolygonRadius(gedUtama, colorGreen, '', mapJKT, 'Gedung Utama')
+        var areaExproduksi = setPolygonRadius(gedExproduksi, colorGreen, '', mapJKT, 'Gedung Ex.Produksi')
+        var areaPelita = setPolygonRadius(gedPelita, colorGreen, '', mapJKT, 'Gedung Pelita')
+        var areaAngkutan = setPolygonRadius(gedAngkutan, colorGreen, '', mapJKT, 'Gedung Angkutan')
+        var areaDepjul2 = setPolygonRadius(gedDepjul2, colorGreen, '', mapJKT, 'Gedung Depjul')
+        var areaDepjul = setPolygonRadius(gedDepjul, colorGreen, '', mapJKT, 'Gedung Depjul 2')
+
+        function getDataMap() {
+            var paramDataMap = {
+                startDate: 'tes',
+                
+
             }
-        });
-        $(document).on('click', '.lihat', function () {
-            user_id = $(this).data('id');
-            // $("#success-alert").hide();
-            isVisible('pengadaan')
+            $.ajax({
+                url: "{{route('data.map')}}",
 
-            var data = table.row($(this).closest('tr')).data();
-            console.log(data)
-            var tgl_dibuat = moment(data.tender_dibuat).format('DD/MM/YYYY');
-            var tgl_update = moment(data.tender_update).format('DD/MM/YYYY');
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataMap,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                   
+                }
+            })
+        }
 
-            var tgl_review = moment().format('DD/MM/YYYY');
-            $('#nama_tender').text(data.name);
-            $('#vendor').text(data.nama_vendor);
-            $('#no_tender').text(data.number);
-            $('#no_pr').text(data.number);
-            $('#no_jsea').val(data.number);
-            $('#tgl_dibuat').text(tgl_dibuat);
-            $('#tgl_updated').text(tgl_update);
-            $('#dok_jsea').text(data.file_uid);
-            $('#dok_evaluasi').text(data.file_uid);
-            $('#status_tender').text(data.status_tender);
-            $('#status_review').text(data.status_review);
-            $('#tgl_review').text(tgl_review);
-            // if(data.evaluasi_jsea=='-'){
-            //     $('#lihat').hide() 
-            // }else{
 
-            //     $('#review').hide() 
-            //     $('#accept').hide() 
+        function setCircleRadius(circle, color, radius, dataPopUp, map, tooltip) {
+            var circle = L.circle(circle, {
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.3,
+                radius: radius
+            }).addTo(map); 
 
-            // } 
-            $('#modaldetail').modal();
+            // specify popup options 
+            var dataLantai1 = '-'
+            var dataLantai2 = '-'
+            var dataLantai3 = '-'
+            var dataLantaiGround = '-'
+            var customPopup =
+            "<b style='font-size: 15px;'>"+tooltip+"</b><br/>" +
+                "<table  width: 100%;>" +
+                "<tbody style='font-color:#fff;'>" +
+                
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. Ground</td>" +
+                "<td class='fontDetail'><b>: "+dataLantaiGround+"</td>" +
+                "</tr>" + 
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 1</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai1+"</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 2</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai2+"</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 3</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai3+"</td>" +
+                "</tbody>" +
+                "</table>";
 
-        });
-
-        function isVisible(isVisible) {
-            if (isVisible == 'k3') {
-                $('#file_jsea').hide()
-                $('#down_dok_jsea').show()
-            } else {
-                $('#file_jsea').show()
-                $('#down_dok_jsea').hide()
+            // specify popup options 
+            var customOptions = {
+                'maxWidth': '500',
+                'width': '500',
+                'className': 'custom'
             }
 
 
-        }
-        // $('#simpan').on('click', function () {
-        //     isVisible('k3')
-        // })
-        function goToReview(id) {
-            // var url = '{{ route("dashboard.data",":id")}}';
-            url = url.replace(':id', id);
-            document.location.href = url;
-        }
-        $('#lihat').on('click', function () {
-
-            isVisible('k3')
-        })
-        $('#review').on('click', function () {
-
-            isVisible('k3')
-        })
-        $('#accept').on('click', function () {
-            toastr.success('status update', 'Tersimpan', {
-                timeOut: 5000
-            });
-        })
-        $(document).on('click', '.terima', function () {
-            user_id = $(this).data('id');
-            // $("#success-alert").hide();
-            var data = table.row($(this).closest('tr')).data();
-
-            $('#modaldetail').modal();
-
-        });
-        $(document).on('click', '.kirim', function () {
-            user_id = $(this).data('id');
-            // $("#success-alert").hide();
-            var data = table.row($(this).closest('tr')).data();
-
-            $('#modaldetail').modal();
-
-        });
-        $('#tbl_jsea tbody').on('click', 'tr', function () {
-            user_id = $(this).data('id');
-            // $("#success-alert").hide();
-            isVisible('pengadaan')
-
-            var data = table.row($(this).closest('tr')).data();
-            console.log(data)
-            var tgl_dibuat = moment(data.tender_dibuat).format('DD/MM/YYYY');
-            var tgl_update = moment(data.tender_update).format('DD/MM/YYYY');
-
-            var tgl_review = moment().format('DD/MM/YYYY');
-            $('#nama_tender').text(data.name);
-            $('#vendor').text(data.nama_vendor);
-            $('#no_tender').text(data.number);
-            $('#no_pr').text(data.number);
-            $('#no_jsea').val(data.number);
-            $('#tgl_dibuat').text(tgl_dibuat);
-            $('#tgl_updated').text(tgl_update);
-            $('#dok_jsea').text(data.file_uid);
-            $('#dok_evaluasi').text(data.file_uid);
-            $('#status_tender').text(data.status_tender);
-            $('#status_review').text(data.status_review);
-            $('#tgl_review').text(tgl_review);
-
-            $('#modaldetail').modal();
-        });
-        // $('#simpan').on('click', function (event) {
-        //     $('#confirmModal').modal()
-        // })
+            circle.bindPopup(customPopup, customOptions)
+            circle.bindTooltip(tooltip).openTooltip()
+        } 
+        // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
         
+        function setPolygonRadius(LongLat, color, dataPopUp, map, tooltip) {
+            var polygon = L.polygon(
+                LongLat, {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.2
+                }).addTo(map);
+            var customOptions = {
+                'maxWidth': '400',
+                'width': '300',
+                'className': 'custom'
+            }
+            var dataLantai1 = '-'
+            var dataLantai2 = '-'
+            var dataLantai3 = '-'
+            var dataLantaiGround = '-'
 
-        $('#save_upload').on('submit', function (event) {
-            event.preventDefault();
-            var output = [];
-            var jsonData = {}
-            var id = []
-            var dataSelected = []
-            var data1 = table.rows({
-                selected: true
-            }).data()
-            data1[0].file_jsea = $('#file_jsea').prop('files')[0]
-          
+            var customPopup =
+            "<b style='font-size: 15px;'>"+tooltip+"</b><br/>" +
+                "<table  width: 100%;>" +
+                "<tbody style='font-color:#fff;'>" + 
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. Ground</td>" +
+                "<td class='fontDetail'><b>: "+dataLantaiGround+"</td>" +
+                "</tr>" + 
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 1</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai1+"</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 2</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai2+"</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td class='fontDetail'><b>Lt. 3</td>" +
+                "<td class='fontDetail'><b>: "+dataLantai3+"</td>" +
+                "</tbody>" +
+                "</table>";
+            polygon.bindPopup(customPopup, customOptions);
+            polygon.bindTooltip(tooltip).openTooltip()
+           
+        }
 
-            var form = new FormData(this)
-            form.append('data', JSON.stringify(data1[0]))
 
-            url = "{{ route('tender.store') }}"
+        // for ( var i=0; i < markers.length; ++i ) 
+        // {
+        //    L.marker( [markers[i].lat, markers[i].lng] )
+        //       .bindPopup( '<a href="' + markers[i].url + '" target="_blank" rel="noopener">' + markers[i].name + '</a>' )
+        //       .addTo( map );
+        // }
+
+        moment.locale('id');
+        $('#day').text(moment().format('LLLL'))
+        //     $('#mode').bootstrapToggle({
+        //         width: '100%',
+        // });
+        var valChecked = true
+        var startDate
+        var endDate
+        $('#mode').change(function () {
+            valChecked = $(this).prop('checked')
+            getGrafik(startDate, endDate);
+            getPersebaran(startDate, endDate);
+            //   alert($(this).prop('checked'))
+        })
+        var ctxAkumulasi = areaChart.comp(document.getElementById("akumulasi"), 'Akumulasi Covid Case')
+        var ctxCaseByDate = areaChart.comp(document.getElementById("casebydate"), 'Case By Day Covid')
+
+        var ctxbarchart = barChart.comp(document.getElementById("bar_overview"), 'Perkembangan Kasus Aktif')
+        ctxbarchart.height = 500
+        var ctxSembuh = barChart.comp(document.getElementById("sembuh_overview"), 'Perkembangan Kesembuhan')
+        ctxSembuh.height = 500
+
+
+        var ctxarea_kerja = barChart.comp(document.getElementById("area_kerja"), 'Kasus Aktif Per Area Kerja')
+        ctxarea_kerja.height = 300
+        var ctxunit_kerja = barChart.comp(document.getElementById("unit_kerja"), 'Kasus Aktif Per Unit Kerja')
+        ctxunit_kerja.height = 400
+
+
+
+        var ctxDirektorat = pieChart.comp(document.getElementById("pie_direktorat"),
+            'Persebaran Kasus Aktif Direktorat ', 6, '#pie_direktorat')
+        var ctxDivisi = pieChart.comp(document.getElementById("pie_divisi"), 'Persebaran Kasus Aktif Divisi', 7,
+            '#pie_divisi')
+        var ctxDomisili = pieChart.comp(document.getElementById("pie_domisili"),
+            'Persebaran Tempat Perawatan Kasus Aktif',
+            8, '#pie_domisili')
+        var ctxLokIsoman = pieChart.comp(document.getElementById("pie_lokasi_isolasi"),
+            'Persebaran Isolasi Kasus Aktif',
+            9, '#pie_lokasi_isolasi')
+        var ctxKlaster = pieChart.comp(document.getElementById("pie_klaster"), 'Persebaran Klaster Kasus Aktif',
+            10, '#pie_klaster')
+        var ctxStatusVaksin = pieChart.comp(document.getElementById("pie_statusvaksin"),
+            'Persebaran Status Vaksin Kasus Aktif', 11, '#pie_statusvaksin')
+        var ctxGejala = pieChart.comp(document.getElementById("pie_gejala"),
+            'Tingkat Gejala Kasus Aktif', 12, '#pie_gejala')
+
+
+
+
+        // function updateData(chart, labels, data,color) {
+        //     chart.data.labels = labels
+        //     chart.data.datasets[0].backgroundColor = color
+        //     chart.data.datasets[0].data = data
+        //     chart.update();
+        // }
+        $('#chartrange').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD')
+            endDate = picker.endDate.format('YYYY-MM-DD')
+
+
+            getGrafik(startDate, endDate);
+            getAreaKerjaAktif(startDate, endDate)
+            getPersebaran(startDate, endDate);
+        });
+
+        $('#datesembuh').on('apply.daterangepicker', function (ev, picker) {
+            startDate = picker.startDate.format('YYYY-MM-DD')
+            endDate = picker.endDate.format('YYYY-MM-DD')
+            getGrafikKesembuhan(startDate, endDate)
+        });
+        // Get the chart's base64 image string
+
+        $('#download_bar').on('click', function () {
+            downloadChart(ctxbarchart, 'bar_kasus_aktif.png')
+        });
+        $('#download_dir').on('click', function () {
+            downloadChart(ctxDirektorat, 'pie_direktorat_kasus_aktif.png')
+        });
+        $('#download_div').on('click', function () {
+            downloadChart(ctxDivisi, 'pie_divisi_kasus_aktif.png')
+        });
+        $('#download_domisili').on('click', function () {
+            downloadChart(ctxDomisili, 'pie_kota_kasus_aktif.png')
+        });
+        $('#download_isolasi').on('click', function () {
+            downloadChart(ctxLokIsoman, 'pie_perawatan_kasus_aktif.png')
+        });
+        $('#download_klaster').on('click', function () {
+            downloadChart(ctxKlaster, 'pie_kalster_kasus_aktif.png')
+        });
+        $('#download_vaksin').on('click', function () {
+            downloadChart(ctxStatusVaksin, 'pie_vaksin_kasus_aktif.png')
+        });
+        $('#download_gejala').on('click', function () {
+            downloadChart(ctxGejala, 'pie_gejala_kasus_aktif.png')
+        });
+        $('#download_gedung').on('click', function () {
+            downloadChart(ctxarea_kerja, 'bar_gedung_kasus_aktif.png')
+        });
+        $('#download_unit').on('click', function () {
+            downloadChart(ctxunit_kerja, 'bar_unit_kasus_aktif.png')
+        });
+
+
+
+
+
+        var canvas = document.getElementById("pie_direktorat");
+        canvas.onclick = function (evt) {
+            var activePoints = ctxDirektorat.getElementsAtEvent(evt);
+            if (activePoints[0]) {
+                var chartData = activePoints[0]['_chart'].config.data;
+                var idx = activePoints[0]['_index'];
+                console.log(chartData)
+                var direktorat = chartData.labels[idx];
+                var value = chartData.datasets[0].data[idx];
+
+                // var url = "http://example.com/?label=" + label + "&value=" + value;
+
+                getDivisi(startDate, endDate, direktorat)
+            }
+        };
+
+        var canvas1 = document.getElementById("pie_domisili");
+        canvas1.onclick = function (evt) {
+            var activePoints = ctxDomisili.getElementsAtEvent(evt);
+            if (activePoints[0]) {
+                var chartData = activePoints[0]['_chart'].config.data;
+                var idx = activePoints[0]['_index'];
+                console.log(chartData)
+                var domisili = chartData.labels[idx];
+                var value = chartData.datasets[0].data[idx];
+
+                // var url = "http://example.com/?label=" + label + "&value=" + value;
+
+                getPersebaranPerawatan(startDate, endDate, domisili)
+            }
+        };
+
+        var canvas3 = document.getElementById("area_kerja");
+        canvas3.onclick = function (evt) {
+            var activePoints = ctxarea_kerja.getElementsAtEvent(evt);
+            if (activePoints[0]) {
+                var chartData = activePoints[0]['_chart'].config.data;
+                var idx = activePoints[0]['_index'];
+
+                var gedung = chartData.labels[idx];
+                var value = chartData.datasets[0].data[idx];
+                console.log(gedung)
+                // var url = "http://example.com/?label=" + label + "&value=" + value;
+
+                getUnitKerjaAktif(startDate, endDate, gedung)
+            }
+        };
+
+
+        getDatabanner()
+        getGrafikSummary()
+        getDataMap()
+        function downloadChart(ctx, filename) {
+            var a = document.createElement('a');
+            a.href = ctx.toBase64Image();
+            a.download = filename;
+            a.click();
+        }
+
+        function getDatabanner() {
+            var paramDataBanner = {
+                date: '-'
+
+            }
             $.ajax({
-                url: url,
+                url: "{{route('data.banner')}}",
+
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                data: form,
+                data: paramDataBanner,
                 contentType: false,
-                // cache: false,
                 processData: false,
-                // dataType: "json",
-                beforeSend: function () {
-                    $('#simpan').text('proses menyimpan...');
-                },
                 success: function (data) {
-                    // console.log(data)
-                    if (data.errors) {
 
-                        toastr.success(data.errors, 'Gagal Menyimpan', {
-                            timeOut: 5000
-                        });
-                    }
-                    if (data.success) {
-                        // toastr.success(data.success, 'Success', {
-                        //     timeOut: 5000
-                        // });
-                        var id_tender_db = data.id_tender_db
-                        var no_tender = data1[0].number
-                        var status_kirim = data.success
-
-                        sendMail(id_tender_db, no_tender, status_kirim, '#simpan')
-
-                    }
+                    $('#terkonfirmasi').text(data.dataTerkonfirmasi);
+                    $('#aktif').text(data.dataKasusAktif);
+                    $('#sembuh').text(data.dataSembuh);
+                    $('#meninggal').text(data.dataMeninggal);
                 }
             })
-            $('#np').val('').change()
-            $('#modalconfirm').modal('toggle')
-        })
+        }
 
-        function sendMail(id_tender_db, no_tender, status_kirim, button) {
-            var paramData = {
-                id_tender: id_tender_db,
-                no_tender: no_tender,
-                unit_kerja: "k3",
+        function getGrafik(startDate, endDate) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                // mode:valChecked
 
             }
             $.ajax({
-                url: "{{ route('mail.send')}}",
+                url: "{{route('data.grafik_bar')}}",
+
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                data: paramData,
-                beforeSend: function () {
-                    $(button).text('mengirim email...');
-                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
                 success: function (data) {
-                    var html = '';
-                    console.log(data)
-                    if (data.success) {
-                        toastr.success(data.success + " & " + status_kirim, 'Terkirim', {
-                            timeOut: 5000
-                        });
-                        $('#tbl_jsea').DataTable().ajax.reload();
-                        // $('#simpan').text('Simpan');
-                        $(button).text('Kirim');
-                        $('#modaldetail').modal('toggle');
+                    var dataValues = data.dataValues
+                    var dataKeys = data.dataKeys
+                    var maxValue = data.maxValue
+                    barChart.updateData(ctxbarchart, dataValues, dataValues, dataKeys, maxValue)
+                }
+            })
+        }
+
+        function getGrafikKesembuhan(startDate, endDate) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                // mode:valChecked
+
+            }
+            $.ajax({
+                url: "{{route('data.kesembuhan')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    var dataValues = data.dataValues
+                    var dataKeys = data.dataKeys
+                    var maxValue = data.maxValue
+                    barChart.updateData(ctxSembuh, dataValues, dataValues, dataKeys, maxValue)
+                }
+            })
+        }
 
 
+        function getAreaKerjaAktif(startDate, endDate) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                // mode:valChecked
+
+            }
+            $.ajax({
+                url: "{{route('data.areakerja_aktif')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    var dataValues = data.dataValues
+                    var dataKeys = data.dataKeys
+                    var maxValue = data.maxValue
+                    var bars = ctxarea_kerja.data.datasets[1].data;
+
+
+
+                    barChart.updateDataMaxColor(ctxarea_kerja, dataValues, dataValues, dataKeys,
+                        maxValue)
+                    var dataset = ctxarea_kerja.data.datasets[1];
+                    for (var i = 0; i < dataset.data.length; i++) {
+                        if (dataset.data[i] == maxValue) {
+                            console.log(dataset)
+                            // chart.data.datasets[1].backgroundColor[2] 
+                            dataset.backgroundColor[i] = "#F44336";
+                        } else {
+                            dataset.backgroundColor[i] = "rgba(0, 97, 242, 1)";
+
+                        }
                     }
+                    ctxarea_kerja.update();
 
                 }
             })
         }
-        var paramData = {
-            tahun: new Date().getFullYear()
-        }
-        $.ajax({
-            url: "{{ route('banner.data') }}",
-            method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                    'content')
-            },
-            data: paramData,
-            // contentType: false,
-            // cache: false,
-            // processData: false,
-            // dataType: "json",
-            beforeSend: function () {
-                $('#saveentri').text('proses menyimpan...');
-            },
-            success: function (data) {
-                console.log(data)
-                $('#belumreview').text(data.dataBlmReview)
-                $('#jmlhpermintaan').text(data.dataPermintaan)
-                var persenApprove = Math.round(data.persenApprove)
-                var persenEvaluasi = Math.round(data.persenEvaluasi)
-                var persenTerima = Math.round(data.persenTerima)
 
-                // $('#openreview').text(data.dataOpenReview)
-                $('#onprogress').text(data.dataOnProgressReview)
-                $('#approve').text(data.dataApprove)
-                $('#evaluasi').text(data.dataEvaluasi)
-                $('#persenevaluasi').text(data.dataEvaluasi + ' dari ' + data.dataPermintaan)
-                $('#persenapprove').text(data.dataApprove + ' dari ' + data.dataPermintaan)
-                $('#persenterima').text(data.dataDiterima + ' dari ' + data.dataPermintaan)
-
-                $('#progbarapprove').css({
-                    "width": persenApprove + "%"
-                });
-                $('#progbarevaluasi').css({
-                    "width": persenEvaluasi + "%"
-                });
-                $('#progbarterima').css({
-                    "width": persenTerima + "%"
-                });
-
-                $('#openreview').text(data.dataOpenPermintaan)
-
-
-                $('#diterimapengadaan').text(data.dataDiterima)
-
+        function getUnitKerjaAktif(startDate, endDate, gedung) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                gedung: gedung
 
             }
-        })
+            $.ajax({
+                url: "{{route('data.unitkerja_aktif')}}",
 
-        // updateData(cair, ["Polos", "Ada"], [dataPieChart[0],dataPieChart[1]])
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    var dataValues = data.dataValues
+                    var dataKeys = data.dataKeys
+                    var maxValue = data.maxValue
+                    barChart.updateDataMaxColor(ctxunit_kerja, dataValues, dataValues, dataKeys,
+                        maxValue)
+                    var dataset = ctxunit_kerja.data.datasets[1];
+                    for (var i = 0; i < dataset.data.length; i++) {
+                        if (dataset.data[i] == maxValue) {
+                            console.log(dataset)
+                            // chart.data.datasets[1].backgroundColor[2] 
+                            dataset.backgroundColor[i] = "#F44336";
+                        } else {
+                            dataset.backgroundColor[i] = "rgba(0, 97, 242, 1)";
+
+                        }
+                    }
+                    ctxunit_kerja.update();
+                }
+            })
+        }
+
+
+
+        function getGrafikSummary() {
+            var paramDataGrafik = {
+                mode: '-',
+                // endDate: endDate,
+                // mode:valChecked
+
+            }
+            $.ajax({
+                url: "{{route('data.summary')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    var dataAkumulasi = data.dataAkumulasi
+                    var dataCaseByDate = data.dataCaseByDate
+                    var dataKeys = data.dataKeys
+                    var maxValuesByDate = data.maxValuesByDate
+                    var maxValuesAkumulasi = data.maxValuesAkumulasi
+                    areaChart.updateData(ctxAkumulasi, dataAkumulasi, dataKeys, maxValuesAkumulasi,
+                        ["#ff5722"])
+                    areaChart.updateData(ctxCaseByDate, dataCaseByDate, dataKeys, maxValuesByDate, [
+                        "#4CAF50"
+                    ])
+
+                }
+            })
+        }
+
+
+        function getDivisi(startDate, endDate, direktorat) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                direktorat: direktorat
+
+            }
+            $.ajax({
+                url: "{{route('data.divisi')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    console.log(data)
+                    pieChart.updateData(ctxDivisi, data.keyDivisi, data.valuesDivisi, data
+                        .colorDivisi)
+
+
+                }
+            })
+        }
+
+        function getPersebaranPerawatan(startDate, endDate, domisili) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                domisili: domisili
+
+            }
+            $.ajax({
+                url: "{{route('data.domisili')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    console.log(data)
+
+                    pieChart.updateData(ctxLokIsoman, data.keyTmptPerawatan, data
+                        .valuesTmptPerawatan, data.colorTmptPerawatan)
+
+
+
+                }
+            })
+        }
+
+        function getPersebaran(startDate, endDate) {
+            var paramDataGrafik = {
+                startDate: startDate,
+                endDate: endDate,
+                // mode:valChecked
+
+            }
+            $.ajax({
+                url: "{{route('data.persebaran')}}",
+
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: paramDataGrafik,
+                // contentType: false,
+                // processData: false, 
+                success: function (data) {
+                    console.log(data)
+
+                    pieChart.updateData(ctxDirektorat, data.keyDirektorat, data.valuesDirektorat,
+                        data.colorDirektorat)
+
+                    pieChart.updateData(ctxDomisili, data.keyIsolasi, data.valuesIsolasi, data
+                        .colorIsolasi)
+                    // pieChart.updateData(ctxLokIsoman, data.keyTmptPerawatan, data
+                    //     .valuesTmptPerawatan, data.colorTmptPerawatan)
+                    pieChart.updateData(ctxKlaster, data.keyKlaster, data.valuesKlaster, data
+                        .colorKlaster)
+                    pieChart.updateData(ctxStatusVaksin, data.keyVaksin, data.valuesVaksin, data
+                        .colorVaksin)
+                    pieChart.updateData(ctxGejala, data.keyGejala, data.valuesGejala, data
+                        .colorGejala)
+
+
+
+
+                }
+            })
+        }
+
     })
 
 </script>
 @endsection
+
+{{-- var bottleCanvas = document.getElementById('pie_direktorat');
+var designCanvas = document.getElementById('pie_divisi');
+var canvas = document.getElementById('canvas');
+
+var bottleContext = canvas.getContext('2d');
+bottleContext.drawImage(designCanvas, 0, 0);
+bottleContext.drawImage(bottleCanvas, 0, 100);
+
+var dataURL = bottleCanvas.toDataURL("image/png");
+var link = document.createElement('a');
+link.download = "bottle-design.png";
+link.href = bottleCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+link.click(); --}}

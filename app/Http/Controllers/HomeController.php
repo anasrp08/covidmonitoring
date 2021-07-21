@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers; 
+use DatePeriod;
+use DateInterval;
 use Illuminate\Http\Request;
 use Laratrust\LaratrustFacade as Laratrust;
 // use App\Helpers\QueryHelper; 
 // use App\Helpers\UpdKaryawanHelper; 
 use App\Http\Requests;
 use App\Helpers\AppHelper;
-use App\Helpers\AuthHelper;
+use App\Helpers\AuthHelper; 
 // use App\Http\Controllers\Collection;
 use App\Role;
+use App\Classes\RandomColor;
+// use App\Colors\RandomColor as ColorsRandomColor;
 use Validator;
 use Response;
 use DB;
@@ -29,7 +32,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     /**
@@ -39,6 +42,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $userData=AuthHelper::getUserData(); 
         // dd(DB::table('cemori.tbl_status')->get());
         // dd(Laratrust::hasRole('Pengawas'));
         // if (Laratrust::hasRole('admin') || Laratrust::hasRole('operator')) {
@@ -56,327 +60,521 @@ class HomeController extends Controller
         //     // return view('pemohon.list', QueryHelper::getDropDown());
         // }
         //    dd($this->dataTender());
-        return view('dashboard.dashboard');
+        // dd($userData->password_change_at);
+        return view('dashboard.dashboard',['userData'=>$userData]);
     }
-    public function dashboardGrafik(Request $request){
-// dd($request->period);
-        // $date=DateTime::createFromFormat("m/Y", $request->period);
-        
-        // $year=$date->format('Y');
-        $year=$request->period;
-        $dataPermintaan=[];
-        $dataOnProgress=[];
-        $dataFinish=[]; 
-
-        for($i=1;$i<=12;$i++){
-            $dataJumlahPermintaan[$i] = DB::table('tr_daftar_jsea') 
-                ->whereYear('tr_daftar_jsea.created_at', $year)
-                ->whereMonth('tr_daftar_jsea.created_at', $i)->count();
-
-            $dataOnProgressReview[$i] = DB::table('tr_daftar_jsea')
-            ->where('status_review', '2')
-            ->whereYear('tr_daftar_jsea.created_at', $year)
-            ->whereMonth('tr_daftar_jsea.created_at', $i)->count();
-
-            $dataSelesai[$i]= DB::table('tr_daftar_jsea')
-            ->where('status_review', '3')
-            // ->orWhere('status_review', '4')
-            ->whereYear('tr_daftar_jsea.created_at', $year)
-            ->whereMonth('tr_daftar_jsea.created_at', $i)->count();
- 
-            array_push($dataPermintaan,$dataJumlahPermintaan[$i]);
-            array_push($dataOnProgress,$dataOnProgressReview[$i]);
-            array_push($dataFinish,$dataSelesai[$i]);
-
-        } 
-        return response()->json([
-            'dataPermintaan'=>$dataPermintaan,
-            'dataOnProgress'=>$dataOnProgress,
-            'dataSelesai'=>$dataFinish
-        ]);
-         
-    }
-
-    public function dataBanner(Request $request)
+    public function indexLogin($np)
     {
-        //dari eproc yg blm direview
-        $dataEproc = $this->dataFromEproc($request);
-        $dataSistem = null;
-        $dataSistem = DB::table('tr_daftar_jsea')->get();
-        $persenApprove=0;
-        $persenEvaluasi=0;
-        $persenTerima=0;
-        $filteredData = [];
-        for ($i = 0; $i < $dataSistem->count(); $i++) {
-            $key = $dataEproc->search(function ($item) use ($dataSistem, $i) {
-                return $item->idtender == $dataSistem[$i]->id_tender;
-            });
-            $dataEproc->pull($key);
-        }
-        $dataBlmReview=$dataEproc->count();
-         
+        // $userData=AuthHelper::getUserData(); 
+        // dd($np);
+        $decrypt_np=$this->encrypt_decrypt('decrypt',$np );
+		$splitDecrypt=explode('|',$decrypt_np);
+        // $splitDecrypt[2];
+        $user = DB::table('users')->where('username',$np)->first();
+        if($user)  {
+            // Auth::login($user->id,TRUE);
+            Auth::loginUsingId($user->id,TRUE);
+            $user = Auth::user();
+ 
+            $roleuser=$user->roles->first()->name;
+            // dd($roleuser);
+            return view('dashboard.dashboard',[]);
+            // return redirect()->intended('/');
+            // Auth::logout();
         
-        //jumlah seluruh permintaan bulan inipengadaan permintaan ke k3
-        $dataJumlahPermintaan = DB::table('tr_daftar_jsea')->count();
-        //pemintaan review ke k3
-        $dataOpenPermintaan = DB::table('tr_daftar_jsea')->where('status_review', '1')->count();
-        //form yg masih disave
-        $dataOnProgressReview = DB::table('tr_daftar_jsea')->where('status_review', '2')->count();
-        //form yg diterima
-        $dataApprove = DB::table('tr_daftar_jsea')->where('status_review', '3')->count();
-        //form yang ada evaluasi
-        $dataEvaluasi = DB::table('tr_daftar_jsea')->where('status_review', '4')->count();
-        //review yang diterima oleh pengadaan
-        $dataDiterima = DB::table('tr_daftar_jsea')->where('status_review', '6')->count();
-
-        if($dataJumlahPermintaan==0){
-
         }else{
-            $persenApprove=(int)$dataDiterima/(int)$dataJumlahPermintaan *  100;
-            $persenEvaluasi=(int)$dataEvaluasi/(int)$dataJumlahPermintaan *  100;
-            $persenTerima=(int)$dataDiterima/(int)$dataJumlahPermintaan *  100;
-
+            return 'User tidak terdaftar, silahkan kembali ke portal';
         }
+        // dd($user);
+        // return view('dashboard.dashboard',['userData'=>$userData]);
+    }
+    public static function indexLogout($np){
+         Auth::logout();
+         return 'User tidak terdaftar, silahkan kembali ke portal';
+
+    }
+    public static function encrypt_decrypt($action, $string) {
+        $output = false;
+        $encrypt_method = "AES-256-CBC";
+        
+        $secret_key = 'fajaSsd1fjDwASjA12SAGSHga3yus';
+        $secret_iv = 'ASsadkmjku4jLOIh2jfGda5';
+        // hash
+        $key = hash('sha256', $secret_key);
+        
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+            
+        
+/*			$pisah 				= explode('|',$output);
+            $datetime_request 	= $pisah[3];
+            $datetime_expired 	= date('Y-m-d H:i:s',strtotime('+10 seconds',strtotime($datetime_request))); 
+
+            $datetime_now		= date('Y-m-d H:i:s');
+            if($datetime_now > $datetime_expired || !$datetime_request)
+            {
+            $output = false;
+            }
+*/			
+            /* Testing		
+            echo "datetime now".$datetime_now."<br>";
+            echo "datetime expired".$datetime_expired."<br>";
+            var_dump($output);
+            */
+        }
+        
+        
+        return $output;
+    }
+    
+
+    public function grafikCaseByDate($dataValues){
+
+        for($i=0;$i<count($dataValues);$i++){
+            if($i==0){
+                continue;
+            }else{
+                $dataValues[$i]=$dataValues[$i]+$dataValues[$i-1];
+            }
+        }
+
+        return $dataValues;
+
+    }
+    public function grafikSummary(Request $request){
+        $periodIn = [];
+        $dataGrafik=DB::table('tbl_detail_kasus')
+        // ->select(DB::raw('DATE_FORMAT(tgl, "%d-%m-%Y") as tgl_positif'),DB::raw('MONTH(tgl) as month'),DB::raw('DAY(tgl) as date'),DB::raw('YEAR(tgl) as year'),DB::raw('count(tgl) as total'))
+        ->select('tgl as tgl_positif',DB::raw('MONTH(tgl) as month'),DB::raw('DAY(tgl) as date'),DB::raw('YEAR(tgl) as year'),DB::raw('count(tgl) as total'))
+        ->where('status','PCR Positive')
+        ->orderBy('tgl_positif','asc')
+ 
+        ->groupBy('tgl_positif')
+        
+        ->get();
+        // dd( $dataGrafik);
+        foreach ($dataGrafik as $data) {     
+            // $resultConvert=$this->convertSatuan($data->jumlah,$dataSatuan); 
+            $periodIn[$data->tgl_positif] =  $data->total;
+        }
+        // dd($dataGrafik);
+        $dataKeys=array_keys($periodIn);
+        // dd(collect($dataKeys));
+        // foreach ($dataKeys as $data) {
+        //     // dd();
+        //     $date=DateTime::createFromFormat("Y-m-d", $data);
+        //     $data=$date->format('d/m/Y');
+        //     return $data;
+        // }
+        // $dates = ["2019-01-01", "2019-03-01", "2019-09-01"];
+$formattedDate=collect($dataKeys)->map(function ($item, $key) {
+ 
+    $item=DateTime::createFromFormat("Y-m-d", $item)->format('d/m/Y');
+ return $item;
+
+})->all();
+
+        
+        $dataValues=array_values($periodIn);
+      
+        $dataAkumulasi=$this->grafikCaseByDate($dataValues);
+      
+        $dataCaseByDate=$dataValues;
+       
+       
+        $maxValuesByDate=max($dataValues);
+        $maxValuesAkumulasi=max($dataAkumulasi);
+        return response()->json([
+            'dataAkumulasi' =>  $dataAkumulasi,
+            'dataCaseByDate' =>  $dataCaseByDate,
+            'dataKeys'=> $formattedDate,
+            'maxValuesByDate'=> $maxValuesByDate,
+            'maxValuesAkumulasi'=> $maxValuesAkumulasi,
+        ]);
+            
+    }
+    public static function dataBanner(Request $request)
+    {
+        $dataTerkonfirmasiAll=DB::table('tbl_detail_kasus')
+        ->where('status','PCR Positive')->count();
+
+        $dataKasusAktif=DB::table('tbl_header_kasus')
+        ->where('status','PCR Positive')->count();
+
+        $dataSembuh=DB::table('tbl_detail_kasus')
+        ->where('status','PCR Negative')->count();
+
+        $dataMeninggal=DB::table('tbl_header_kasus')
+        ->where('status','Meninggal')->count();
+
+        return response()->json([
+            'dataTerkonfirmasi' =>  $dataTerkonfirmasiAll,
+            'dataKasusAktif' =>  $dataKasusAktif,
+            'dataSembuh' =>  $dataSembuh,
+            'dataMeninggal' =>  $dataMeninggal,
+    ]);
+    }
+    public static function grafikByDate(Request $request)
+    { 
+        $periodIn = [];
+        $period = new DatePeriod(new DateTime($request->startDate), new DateInterval('P1D'), new DateTime($request->endDate));
+       
+        // foreach ($period as $date) {
+        //     //$value->format('Y-m-d')
+        //     $periodIn[$date->format("d-m-Y")] = 0;
+        //     // $periodOut[$date->format("d")] = 0; 
+        //     $columnPeriod[] = $date->format("d");       
+        // }  
+
+        $grafik_bar=DB::table('tbl_header_kasus')
+        
+        ->select('tgl_positif as tgl_positif',DB::raw('count(tgl_positif) as total'))
+        ->where('status','PCR Positive')
+        ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
+        ->orderBy('tgl_positif','asc')
+        ->groupBy('tgl_positif')
+        
+        ->get();
+        
         
        
-
-        return response()->json([
-            'dataBlmReview' => $dataBlmReview,
-            'dataPermintaan' => $dataJumlahPermintaan, 
-            'dataOnProgressReview' => $dataOnProgressReview,
-            'dataApprove' => $dataApprove,
-            'dataEvaluasi' => $dataEvaluasi,
-            'dataDiterima' => $dataDiterima, 
-            'dataOpenPermintaan' => $dataOpenPermintaan, 
-            'persenApprove' => $persenApprove, 
-            'persenEvaluasi' => $persenEvaluasi, 
-            'persenTerima' => $persenTerima, 
-        ]);
-    }
-    public static function dataFromEproc($request)
-    {
-        try {
-            $dataEproc = DB::connection('pgsql')->table('prcmts')
-            ->join('prcmt_participants', 'prcmts.id', 'prcmt_participants.prcmt_id')
-            ->join('vendors', 'prcmt_participants.vendor_id', 'vendors.id')
-            ->join('parties', 'vendors.party_id', 'parties.id')
-            ->join('prcmt_docs', 'prcmts.id', 'prcmt_docs.prcmt_id')
-            ->join('prcmt_items', 'prcmts.id', 'prcmt_items.prcmt_id')
-            ->join('purch_reqn_items', 'purch_reqn_items.id','prcmt_items.purch_reqn_item_id')
-            ->join('purch_reqns', 'purch_reqns.id','purch_reqn_items.purch_reqn_id' )
-            // ->join('mysql.tr_daftar_jsea as db2', 'db2.id_tender', 'prcmts.id')
-
-            ->select(
-                'prcmts.id as idtender',
-                'prcmts.number',
-                'prcmts.name',
-                // 'prcmts.desc',
-                'prcmts.state as status_tender',
-                'prcmts.created_at as tender_dibuat',
-                'prcmts.updated_at as tender_update',
-                'prcmt_participants.created_at as participant_dibuat',
-                'prcmt_participants.updated_at as participant_diupdate',
-                'prcmt_participants.state as status_vendor',
-                'parties.full_name as nama_vendor',
-
-                'vendors.id as vendor_id',
-                'prcmt_docs.name as tipe_file',
-                'prcmt_docs.file_uid',
-                'prcmt_docs.file_name',
-                'prcmt_docs.desc as deskripsi_file',
-                'prcmt_docs.created_at as doc_upload',
-                'purch_reqns.number as no_sppj'
-                // 'db2.status_review'
-            )
-            ->where('prcmts.number', 'like', '%PLJ%')
-            ->where('prcmts.desc', 'like', '%JSEA%')
-            ->where('prcmt_participants.state', '=', 'AWARDED')
-            ->where('prcmt_docs.name', '=', 'JSEA')
-            ->whereYear('prcmt_docs.created_at', '=', $request->tahun)
-            ->orderBy('prcmts.created_at', 'desc')
-
-
-            ->get();
-        collect($dataEproc);
-        // foreach($dataEproc as $row){ 
-        $dataEproc->map(function ($item) {
-            $item->status_review = '-';
-            $item->no_jsea = '-';
-            $item->evaluasi_jsea = '-';
-            $item->status_review = '-'; 
-        });
-
-        return $dataEproc;
-            
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Terjadi Kesalahan sistem','message'=>$e]);
+        foreach ($grafik_bar as $data) {     
+            // $resultConvert=$this->convertSatuan($data->jumlah,$dataSatuan); 
+            $periodIn[$data->tgl_positif] =  $data->total;
         }
+
+
+        $dataKeys=array_keys($periodIn); 
+        
+        $formattedDate=collect($dataKeys)->map(function ($item, $key) { 
+            // dd($item);
+            $item=DateTime::createFromFormat("Y-m-d", $item)->format('d/m/Y');
+         return $item;
+        
+        })->all();
+        $dataValues=array_values($periodIn);
+        // dd(count($dataValues));
+        for($i=0;$i<count($dataValues);$i++){
+            if($i==0){
+                continue;
+            }else{
+                $dataValues[$i]=$dataValues[$i]+$dataValues[$i-1];
+            }
+        }
+        $maxValues=null;
+       if(count($dataValues)==0){
+        $maxValues=0;
+       }else{
+        $maxValues=max($dataValues);
+       }
+        
+        
+        return response()->json([
+            'dataValues' =>  $dataValues,
+            'dataKeys'=> $formattedDate,
+            'maxValue'=>$maxValues 
+    ]);
         
     }
-    public function dataTender(Request $request)
-    {
-
-        $dataEproc = $this->dataFromEproc($request); 
-
-        $dataSistem = null;
-        $dataSistem = DB::table('tr_daftar_jsea')->get();
-        $filteredData = [];
-        for ($i = 0; $i < $dataSistem->count(); $i++) {
-            $key = $dataEproc->search(function ($item) use ($dataSistem, $i) {
-                return $item->idtender == $dataSistem[$i]->id_tender;
-            });
-            $dataEproc->pull($key);
+    public static function grafikKesembuhan(Request $request)
+    { 
+        $periodIn = [];
+        $period = new DatePeriod(new DateTime($request->startDate), new DateInterval('P1D'), new DateTime($request->endDate));
+        
+        $grafik_bar=DB::table('tbl_header_kasus')
+        
+        ->select('tgl_positif as tgl_positif',DB::raw('count(tgl_positif) as total'))
+        ->where('status','PCR Negative')
+        ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
+        ->orderBy('tgl_positif','asc')
+        ->groupBy('tgl_positif')
+        
+        ->get();
+        
+        
+       
+        foreach ($grafik_bar as $data) {      
+            $periodIn[$data->tgl_positif] =  $data->total;
         }
 
-        // $c = $c->filter(function($item) {
-        //     return $item->id != 2;
-        // });
 
-        // dd($dataEproc);
-
-        // $merged = $dataSistem->merge($dataEproc);  
-        // $merged1 = $merged->filter(function ($item) {
-        //     return data_get($item, 'status_review') === "-";
-        // })->values();
-        // dd($merged);
-
-
-        if (request()->ajax()) {
-            return datatables()->of($dataEproc)
-                ->addIndexColumn()
-                // ->addColumn('status_review', 'Permohonan Review')
-                // ->addColumn('no_jsea', '-')
-                // ->addColumn('evaluasi_jsea', '-')
-                // ->addColumn('action', '-')
-                // ->rawColumns(['action', 'no_jsea', 'status_review'])
-
-                ->make(true);
-        }
-        // dd($users);
-        return $dataEproc;
-    }
-    public function noSurat()
-    {
-
-        // dd($idAsalLimbah);
-        $noSuratUnitKerja = DB::table('md_no_jsea')->first();
-
-        // $unitKerja=$noSuratUnitKerja->unit_kerja;
-        $currMonth = date("m");
-        $currYear = date("Y");
-        $nomor = (int)$noSuratUnitKerja->no_jsea;
-        function numberToRomanRepresentation($number)
-        {
-
-            $map = array('M' => 1000, 'CM' => 900, 'D' => 500, 'CD' => 400, 'C' => 100, 'XC' => 90, 'L' => 50, 'XL' => 40, 'X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
-            $returnValue = '';
-            while ($number > 0) {
-                foreach ($map as $roman => $int) {
-                    if ($number >= $int) {
-                        $number -= $int;
-                        $returnValue .= $roman;
-                        break;
-                    }
-                }
+        $dataKeys=array_keys($periodIn);
+        $formattedDate=collect($dataKeys)->map(function ($item, $key) {
+ 
+            $item=DateTime::createFromFormat("Y-m-d", $item)->format('d/m/Y');
+         return $item;
+        
+        })->all();
+        $dataValues=array_values($periodIn);
+        // dd(count($dataValues));
+        for($i=0;$i<count($dataValues);$i++){
+            if($i==0){
+                continue;
+            }else{
+                $dataValues[$i]=$dataValues[$i]+$dataValues[$i-1];
             }
-            return $returnValue;
         }
-        $no = sprintf('%03d', $nomor);
-
-        $concatFormat = $no . "/" . "JSEA/" . numberToRomanRepresentation($currMonth) . "/" . $currYear;
-        $nomor++;
-        DB::table('md_no_jsea')->update(['no_jsea' => $nomor]);
-        return  $concatFormat;
+        $maxValues=null;
+       if(count($dataValues)==0){
+        $maxValues=0;
+       }else{
+        $maxValues=max($dataValues);
+       }
+        
+        
+        return response()->json([
+            'dataValues' =>  $dataValues,
+            'dataKeys'=> $formattedDate,
+            'maxValue'=>$maxValues 
+    ]);
+        
     }
-    public function store(Request $request)
-    {
-        $username = AuthHelper::getAuthUser()[0]->email;
-        $data = json_decode($request->data);
-        $rules = array(
 
-            'file_jsea'        =>  'required|max:10048',
-        );
-        $messages = array(
+    public  function queryPersebaran($request,$mode,$field){
+     
+        $data=DB::table('tbl_header_kasus')
+        // ->join('tbl_data_karyawan','tbl_header_kasus.np','tbl_data_karyawan.np')
+        // ->join('tbl_md_sto','tbl_data_karyawan.obj_id_unit','tbl_md_sto.id_unit_kerja')
+        ->select($mode,DB::raw('count(tbl_header_kasus.tgl_positif) as total'))
+        ->where('tbl_header_kasus.status','PCR Positive')
+        ->whereBetween('tbl_header_kasus.tgl_positif',[$request->startDate, $request->endDate])
+        
+        ->groupBy($mode)
+        ->get(); 
 
-            'file_jsea.required'       => 'File JSEA harus diisi Harus Diisi',
-
-            'required' => 'form :attribute harus diisi.',
-            'same'    => 'The :attribute and :other must match.',
-            'max'    => 'file :attribute terlalu besar max :max Kb.',
-            'between' => 'The :attribute must be between :min - :max.',
-            'in'      => 'The :attribute must be one of the following types: :values',
-
-        );
-
-        // $error = Validator::make($data->all(), $rules, $messages);
-        // if ($error->fails()) {
-        //     return response()->json(['errors' => $error->errors()->all()]);
-        // }
-
-        $no_jsea = $this->noSurat();
-        $path_file = AppHelper::pathFile('File Jsea', date('Y'));
-
-        $pathToDB = null;
-        if ($request->hasFile('file_jsea')) {
-            if (!File::exists($path_file)) {
-                File::makeDirectory($path_file, $mode = 0777, true, true);
+        foreach( $data as $row){
+            if($row->$field==''){
+                $row->$field='Lain-Lain';
             }
-            $upload_file = $request->file('file_jsea');
+        } 
+        return $data;
 
-            // $extension=$upload_file->getClientOriginalName(); 
-            $filename_jsea = $upload_file->getClientOriginalName();
-            $upload_file->move($path_file, $filename_jsea);
-            $pathToDB = AppHelper::savePath('File Jsea', date('Y'), $filename_jsea);
-        }
+    }
+    public function generateColor($data){ 
+        $color=RandomColor::many($data, array('luminosity'=>'dark'));
+       
+        return $color;
+        
+    }
+    public  function dataDivisi(Request $request)
+    {
+        $dataDivisi=DB::table('tbl_header_kasus') 
+        ->select('divisi',DB::raw('count(tbl_header_kasus.tgl_positif) as total'))
+        ->where('tbl_header_kasus.status','PCR Positive')
+        ->where('tbl_header_kasus.direktorat', $request->direktorat)
+        ->whereBetween('tbl_header_kasus.tgl_positif',[$request->startDate, $request->endDate])
+        
+        ->groupBy('divisi')
+        ->get(); 
 
-        $dataTender = array(
+        foreach( $dataDivisi as $row){
+            if($row->divisi==''){
+                $row->divisi='Lain-Lain';
+            }
+        } 
+     
+        $keyDivisi=$dataDivisi->pluck('divisi');
+        $valuesDivisi=$dataDivisi->pluck('total');
+        $colorDivisi=$this->generateColor(count($keyDivisi));
+        return response()->json([ 
+            'keyDivisi' =>  $keyDivisi,
+            'valuesDivisi'=> $valuesDivisi,
+            'colorDivisi'=>$colorDivisi,
+        ]);
+     } 
+     
+     public  function dataDomisili(Request $request)
+     {
+        $dataDivisi=DB::table('tbl_header_kasus') 
+        ->select('tempat_perawatan',DB::raw('count(tbl_header_kasus.tgl_positif) as total'))
+        ->where('tbl_header_kasus.status','PCR Positive')
+        ->where('tbl_header_kasus.kota', $request->domisili)
+        ->whereBetween('tbl_header_kasus.tgl_positif',[$request->startDate, $request->endDate])
+        
+        ->groupBy('tempat_perawatan')
+        ->get(); 
 
-            'id_tender'         =>  $data->idtender,
-            'no_pr'             =>  $data->no_sppj,
-            'no_tender'         =>  $data->number,
-            'no_sppj'           =>  $data->no_sppj,
-            'no_jsea'           =>  $no_jsea,
-            'tgl_sppj'          =>  $data->tender_dibuat,
-            'path_file'         =>  $pathToDB,
-            'file_name'         =>  $data->file_name,
-            'tgl_upload'        =>  $data->doc_upload,
-            'desc_file'         =>  $data->deskripsi_file,
-            'id_vendor'         =>  $data->vendor_id,
-            'status_vendor'     =>  $data->status_vendor,
-            'status_tender'     =>  $data->status_tender,
-            'status_review'     =>  '1',
-            'vendor'            =>  $data->nama_vendor,
-            'nama_pekerjaan'    =>  $data->name,
-            'updated_by'        =>  $username,
-            'tgl_tender'        =>  $data->tender_dibuat,
-            'tgl_updtender'     =>  $data->tender_dibuat,
-            'tgl_review'         =>  null,
-            'created_at'        =>  date('Y-m-d')
+        foreach( $dataDivisi as $row){
+            if($row->tempat_perawatan==''){
+                $row->tempat_perawatan='Lain-Lain';
+            }
+        } 
+     
+        $keyTmptPerawatan=$dataDivisi->pluck('tempat_perawatan');
+        $valuesTmptPerawatan=$dataDivisi->pluck('total');
+       $colorTmptPerawatan=$this->generateColor(count($keyTmptPerawatan));
+        return response()->json([ 
+              'keyTmptPerawatan' =>  $keyTmptPerawatan,
+            'valuesTmptPerawatan'=> $valuesTmptPerawatan,
+             'colorTmptPerawatan'=>$colorTmptPerawatan,
+        ]);
+     }
+    public  function dataPersebaran(Request $request)
+    {
+        
+         
+        $dataDirektorat=$this->queryPersebaran($request,'tbl_header_kasus.direktorat','direktorat');
+        $keyDirektorat=$dataDirektorat->pluck('direktorat');
+        // dd($keyDirektorat);
+        $valuesDirektorat=$dataDirektorat->pluck('total');
+        $colorDirektorat=$this->generateColor(count($keyDirektorat));
+
+       
+
+        $dataIsolasi=$this->queryPersebaran($request,'tbl_header_kasus.kota','kota');
+        $keyIsolasi=$dataIsolasi->pluck('kota');
+        $valuesIsolasi=$dataIsolasi->pluck('total');
+        $colorIsolasi=$this->generateColor(count($keyIsolasi));
+
+        // $dataTmptPerawatan=$this->queryPersebaran($request,'tbl_header_kasus.tempat_perawatan','tempat_perawatan');
+        // $keyTmptPerawatan=$dataTmptPerawatan->pluck('tempat_perawatan');
+        // $valuesTmptPerawatan=$dataTmptPerawatan->pluck('total');
+        // $colorTmptPerawatan=$this->generateColor(count($keyTmptPerawatan));
+
+        $dataKlaster=$this->queryPersebaran($request,'tbl_header_kasus.kluster_penyebaran','kluster_penyebaran');
+        $keyKlaster=$dataKlaster->pluck('kluster_penyebaran');
+        $valuesKlaster=$dataKlaster->pluck('total');
+        $colorKlaster=$this->generateColor(count($keyKlaster));
+
+        $dataStatusVaksin=$this->queryPersebaran($request,'tbl_header_kasus.status_vaksin','status_vaksin');
+        $keyVaksin=$dataStatusVaksin->pluck('status_vaksin');
+        $valuesVaksin=$dataStatusVaksin->pluck('total');
+        $colorVaksin=$this->generateColor(count($keyVaksin));
+
+        $dataGejala=$this->queryPersebaran($request,'tbl_header_kasus.kondisi','kondisi');
+        $keyGejala=$dataGejala->pluck('kondisi');
+        $valuesGejala=$dataGejala->pluck('total');
+        $colorGejala=$this->generateColor(count($keyGejala));
+
+
+        return response()->json([
+            'keyDirektorat' =>  $keyDirektorat,
+            'valuesDirektorat'=> $valuesDirektorat, 
             
+            'keyIsolasi' =>  $keyIsolasi,
+            'valuesIsolasi'=> $valuesIsolasi,
+            'keyGejala' =>  $keyGejala,
+            'valuesGejala'=> $valuesGejala,
 
-        );
-        $insertHeader = DB::table('tr_daftar_jsea')->insertGetId($dataTender, true);
-
-
-        // $dataEvaluasi=array(
-        //     'id_tender'           =>  $request->id_tender,
-        //     'id_daftar'         =>  $insertHeader
-        // );
-
-        $dataStatus = array(
-            'id_tender'         =>  $data->idtender,
-            'id_daftar'         =>  $insertHeader,
-            'status'            =>  '1',
-            'created_by'         =>  $username
-        );
-        // $insertEvaluasi=DB::table('tr_evaluasi_jsea')->insert($dataEvaluasi); 
-        $insertStatus = DB::table('tr_status_jsea')->insert($dataStatus);
-
-        try {
-            // UpdtSaldoHelper::updateSaldoNamaLimbah($row['nama_limbah'],$row['jmlhlimbah']);
-            return response()->json(['success' => 'Data Berhasil Di Simpan','id_tender_db'=>$insertHeader]);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Data Gagal Disimpan']);
-        }
+            'keyKlaster' =>  $keyKlaster,
+            'valuesKlaster'=> $valuesKlaster,
+            'keyVaksin' =>  $keyVaksin,
+            'valuesVaksin'=> $valuesVaksin,
+            'colorDirektorat'=>$colorDirektorat,
+          
+            'colorIsolasi'=>$colorIsolasi,
+            'colorGejala'=>$colorGejala,
+            'colorKlaster'=>$colorKlaster,
+            'colorVaksin'=>$colorVaksin,  
+    ]);
+        
     }
+    public static function areaKerjaAktif(Request $request)
+    { 
+        $gedungAktif = [];
+        $grafik_bar=DB::table('tbl_header_kasus')
+        
+        ->select('gedung',DB::raw('count(tgl_positif) as total'))
+        ->where('status','PCR Positive')
+        ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
+        ->groupBy('gedung')
+        ->get(); 
+
+        
+       
+        foreach ($grafik_bar as $data) {     
+            // $resultConvert=$this->convertSatuan($data->jumlah,$dataSatuan); 
+            $gedungAktif[$data->gedung] =  $data->total;
+        }
+
+
+        $dataKeys=array_keys($gedungAktif);
+        $dataValues=array_values($gedungAktif);
+        // dd(count($dataValues));
+         
+        $maxValues=null;
+       if(count($dataValues)==0){
+        $maxValues=0;
+       }else{
+        $maxValues=max($dataValues);
+       }
+        
+        
+        return response()->json([
+            'dataValues' =>  $dataValues,
+            'dataKeys'=> $dataKeys,
+            'maxValue'=>$maxValues 
+    ]);
+        
+    }
+    public static function unitKerjaAktif(Request $request)
+    { 
+        $unitAktif = [];
+        $grafik_bar=DB::table('tbl_header_kasus')
+        
+        ->select('unit',DB::raw('count(tgl_positif) as total'))
+        ->where('status','PCR Positive')
+        ->where('gedung',$request->gedung)
+        ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
+        ->groupBy('unit')
+        ->get(); 
+
+        
+       
+        foreach ($grafik_bar as $data) {     
+            // $resultConvert=$this->convertSatuan($data->jumlah,$dataSatuan); 
+            $unitAktif[$data->unit] =  $data->total;
+        }
+
+
+        $dataKeys=array_keys($unitAktif);
+        $dataValues=array_values($unitAktif);
+        // dd(count($dataValues));
+         
+        $maxValues=null;
+       if(count($dataValues)==0){
+        $maxValues=0;
+       }else{
+        $maxValues=max($dataValues);
+       }
+        
+        
+        return response()->json([
+            'dataValues' =>  $dataValues,
+            'dataKeys'=> $dataKeys,
+            'maxValue'=>$maxValues 
+    ]);
+        
+    }
+    public static function dataMap(Request $request)
+    { 
+        $unitAktif = [];
+        $dataMap=DB::table('tbl_header_kasus')
+        
+        ->select('gedung','lantai','wilayah_kerja',DB::raw('count(tgl_positif) as total'))
+        ->where('status','PCR Positive') 
+        // ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
+        ->groupBy('gedung','lantai')
+        ->get(); 
+
+        //  dd($dataMap);
+        
+        return response()->json([
+            'dataValues' =>  $dataMap
+         
+    ]);
+        
+    }
+
+   
+
+    
+
+    
+    
 }
