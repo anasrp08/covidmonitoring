@@ -21,15 +21,17 @@
         background: #033075;
         color: #fff;
     }
-    .fontDetail{
+
+    .fontDetail {
         color: #fff;
-        width:18rem;
+        width: 18rem;
         font-style: bold;
         font-size: 13px;
     }
+
     td {
-            white-space: nowrap;
-         }
+        white-space: nowrap;
+    }
 
 </style>
 
@@ -99,7 +101,7 @@
 
 <script>
     $(document).ready(function () {
-       
+
 
         var mapKRW = L.map('mapkrw', {
             center: [-6.00, 107.00],
@@ -127,22 +129,14 @@
         // $("a[href='#peruri_jakarta']").on('shown.bs.tab', function (e) { 
         //     mapJKT.invalidateSize();
         // });
-        $("a[href='#activities2']").on('shown.bs.tab', function (e) { 
+        $("a[href='#activities2']").on('shown.bs.tab', function (e) {
             mapJKT.invalidateSize();
         });
         $("a[href='#peruri_krw']").on('shown.bs.tab', function (e) {
-            mapKRW.invalidateSize(); 
+            mapKRW.invalidateSize();
         });
 
-         // 0=ijo
-        // >=1= kuning keijoang
-        // >5 = kuning
-        // >10 = merah
 
-        var colorRed='#b71c1c'
-        var colorYellow='#ffeb3b'
-        var colorOrange='#f57c00'
-        var colorGreen='#388e3c'
         // var marker = L.marker([-6.363310, 107.307274]).addTo(mapKRW);
         var circleSDM = [-6.36377, 107.30797];
         var gedWTP = [-6.36809, 107.30572]
@@ -323,12 +317,14 @@
                 [-6.24211, 106.79931]
             ]
         ];
-
+        var colorRed = '#b71c1c'
+        var colorYellow = '#ffeb3b'
+        var colorOrange = '#f57c00'
+        var colorGreen = '#388e3c'
         var areaMako = setPolygonRadius(latMako, colorGreen, '', mapKRW, 'Gedung Mako & Damkar')
         var areaLiniA = setPolygonRadius(gedLiniA, colorGreen, '', mapKRW, 'Gedung LINI A')
         var areaUtilitas = setPolygonRadius(gedungUtilitas, colorGreen, '', mapKRW, 'Gedung Utilitas')
-        var areaLimbah = setPolygonRadius(gedungPengolahanLimbah, colorGreen, '', mapKRW,
-            'Gedung Pengelolan Limbah')
+        var areaLimbah = setPolygonRadius(gedungPengolahanLimbah, colorGreen, '', mapKRW, 'Gedung Pengelolan Limbah')
         var areaLiniB = setPolygonRadius(gedungLiniB, colorGreen, '', mapKRW, 'Gedung LINI B')
         var areaGudTengah = setPolygonRadius(gudangTengah, colorGreen, '', mapKRW, 'Gudang Tengah')
         var areaArsip = setPolygonRadius(gedungArsip, colorGreen, '', mapKRW, 'Gedung Arsip')
@@ -339,22 +335,41 @@
         var areaUgam = setPolygonRadius(gedungUgam, colorGreen, '', mapKRW, 'Gedung UGAM')
         var areaCekai = setPolygonRadius(gedungCekai, colorGreen, '', mapKRW, 'Gedung Cekai')
         var areatasganu = setPolygonRadius(gedungTasganu, colorGreen, '', mapKRW, 'Gedung Tasganu')
-        var areaPusyantek = setPolygonRadius(gedungPusyantek, colorGreen, '', mapKRW, 'Gedung Pusyantek') 
+        var areaPusyantek = setPolygonRadius(gedungPusyantek, colorGreen, '', mapKRW, 'Gedung Pusyantek')
         var areaSDM = setCircleRadius(circleSDM, colorRed, 40, 'tes', mapKRW, 'Gedung SDM')
-        var areaWTP = setCircleRadius(gedWTP, colorRed, 40, 'tes12', mapKRW, 'Gedung WTP') 
+        var areaWTP = setCircleRadius(gedWTP, colorRed, 40, 'tes12', mapKRW, 'Gedung WTP')
 
         //jakarta
-        var areaUtama = setPolygonRadius(gedUtama, colorGreen, '', mapJKT, 'Gedung Utama')
-        var areaExproduksi = setPolygonRadius(gedExproduksi, colorGreen, '', mapJKT, 'Gedung Ex.Produksi')
-        var areaPelita = setPolygonRadius(gedPelita, colorGreen, '', mapJKT, 'Gedung Pelita')
-        var areaAngkutan = setPolygonRadius(gedAngkutan, colorGreen, '', mapJKT, 'Gedung Angkutan')
-        var areaDepjul2 = setPolygonRadius(gedDepjul2, colorGreen, '', mapJKT, 'Gedung Depjul')
-        var areaDepjul = setPolygonRadius(gedDepjul, colorGreen, '', mapJKT, 'Gedung Depjul 2')
+        var arrArea=[
+            'Mako & Damkar',
+            'Gedung SDM',
+            'Gedung Lini A',
+            'Gedung Utilitas',
+            'Area Pengolahan Limbah',
+            'Gedung Lini B',
+            'Gedung WTP',
+            'Gedung Arsip',
+            'Gudang Tengah',
+            'Gedung Pengadaan',
+            'Gudang Tasganu',
+            'Gedung Lini Internasional',
+            'Gedung Cekai',
+            'Gedung Tasganu',
+            'Gedung Ugam',
+            'Gedung Pusyantek',
+            'Gedung Utama Palatehan',
+            'Depjul',
+            'Gedung Pelita',
+            'Angkutan',
+            'Depjul 2'
+        ]
 
+
+        
         function getDataMap() {
             var paramDataMap = {
                 startDate: 'tes',
-                
+
 
             }
             $.ajax({
@@ -368,19 +383,170 @@
                 // contentType: false,
                 // processData: false, 
                 success: function (data) {
-                   
+                    console.log(data)
+                    var dataMap = data.dataMap  
+                  
+                //    var index = dataMap.map(function (img) { return img.gedung; }).indexOf('Angkutan');
+                //    console.log(index); 
+                    for (i = 0; i < dataMap.length; i++) {
+                        switch (dataMap[i].gedung) {
+                            case 'Depjul':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaDepjul = setPolygonRadius(gedDepjul, generateColor(dataMap[i].total), dataMap[i],
+                                    mapJKT, 'Gedung Depjul')
+                                break;
+                            case 'Depjul 2':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaDepjul2 = setPolygonRadius(gedDepjul2, generateColor(dataMap[i].total), dataMap[
+                                    i], mapJKT, 'Gedung Depjul 2')
+                                break;
+                            case 'Angkutan':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaAngkutan = setPolygonRadius(gedAngkutan, generateColor(dataMap[i].total), dataMap[
+                                    i], mapJKT, 'Gedung Angkutan')
+                                break;
+                            case 'Gedung Pelita':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaPelita = setPolygonRadius(gedPelita, generateColor(dataMap[i].total), dataMap[i],
+                                    mapJKT, 'Gedung Pelita')
+                                break;
+                            case 'Gedung Ex.Produksi':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaExproduksi = setPolygonRadius(gedExproduksi, generateColor(dataMap[i].total),
+                                    dataMap[i], mapJKT, 'Gedung Ex.Produksi')
+                                break;
+                            case 'Gedung Utama Palatehan':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaUtama = setPolygonRadius(gedUtama, generateColor(dataMap[i].total), dataMap[i],
+                                    mapJKT, 'Gedung Utama Palatehan')
+                                break;
+                                case 'Mako & Damkar':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaMako = setPolygonRadius(latMako, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Mako & Damkar')
+                                break;
+                                case 'Gedung SDM':
+                                var colorArea = generateColor(dataMap[i].total)
+                                
+                                var areaSDM = setCircleRadius(circleSDM, generateColor(dataMap[i].total), 40,  dataMap[i], mapKRW, 'Gedung SDM')
+                                break;
+                                case 'Gedung Lini A':
+                                console.log(dataMap[i].total >= 10)
+                                var colorArea = generateColor(dataMap[i].total)
+                               
+                                var areaLINIA = setPolygonRadius(gedLiniA, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Lini A')
+                                break;
+                                case 'Gedung Utilitas':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaUtilitas = setPolygonRadius(gedungUtilitas, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Utilitas')
+                                break;
+                                case 'Area Pengolahan Limbah':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaLimbah = setPolygonRadius(gedungPengolahanLimbah, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Area Pengolahan Limbah')
+                                break;
+                                case 'Gedung Lini B':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaLINIB = setPolygonRadius(gedungLiniB, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Lini B')
+                                break;
+                                case 'Gedung WTP':
+                                var colorArea = generateColor(dataMap[i].total)
+                             
+                                var areaWTP = setCircleRadius(gedWTP, generateColor(dataMap[i].total), 40, dataMap[i], mapKRW, 'Gedung WTP')
+
+                                break;
+                                case 'Gedung Arsip':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaARSIP = setPolygonRadius(gedungArsip, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Arsip')
+                                break;
+                                case 'Gudang Tengah':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaTengah = setPolygonRadius(gudangTengah, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gudang Tengah')
+                                break;
+                                case 'Gedung Pengadaan':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaPengadaan= setPolygonRadius(gedungPengadaan, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Pengadaan')
+                                break;
+                                case 'Gudang Tasganu':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaGudTasganu = setPolygonRadius(gudangTasganu, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gudang Tasganu')
+                                break;
+                                case 'Gedung Lini Internasional':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaInternasional = setPolygonRadius(gedungLiniInternational, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Lini Internasional')
+                                break;
+                                case 'Gedung Cekai':
+                                
+                                var colorArea = generateColor(dataMap[i].total)
+                                console.log(dataMap[i].total >= 10)
+                                var areaCekai = setPolygonRadius(gedungCekai, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Cekai')
+                                break;
+                                case 'Gedung Tasganu':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaTasganu = setPolygonRadius(gedungTasganu, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW, 'Gedung Tasganu')
+                                break;
+                                case  'Gedung Ugam':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaUgam = setPolygonRadius(gedungUgam, generateColor(dataMap[i].total), dataMap[i],
+                                mapKRW,  'Gedung Ugam')
+                                break;
+                                case  'Gedung Pusyantek':
+                                var colorArea = generateColor(dataMap[i].total)
+                                var areaPusyantek= setPolygonRadius(gedungPusyantek, generateColor(dataMap[i].total), dataMap[i],
+                                    mapKRW,  'Gedung Pusyantek')
+                                break;
+                                 
+
+
+
+                            default:
+                                break;
+                        }
+ 
+                    } 
                 }
             })
         }
 
+        function generateColor(jumlahkasus) {
+ 
+            var colorRed = '#b71c1c'
+            var colorYellow = '#ffeb3b'
+            var colorOrange = '#f57c00'
+            var colorGreen = '#388e3c'
+            var jumlah = parseInt(jumlahkasus)
+            var color=null
+
+            if (jumlah == 0) {
+                 color=colorGreen
+            }else   if (jumlah >= 1 && jumlah<= 5) {
+                 color=colorYellow
+            }else  if (jumlah >= 5 && jumlah<=10) {
+                 color=colorOrange
+            }else if (jumlah >= 10) {
+                color=colorRed
+            }
+            return color
+
+        }
 
         function setCircleRadius(circle, color, radius, dataPopUp, map, tooltip) {
             var circle = L.circle(circle, {
                 color: color,
                 fillColor: color,
-                fillOpacity: 0.3,
+                fillOpacity: 0.5,
                 radius: radius
-            }).addTo(map); 
+            }).addTo(map);
 
             // specify popup options 
             var dataLantai1 = '-'
@@ -388,25 +554,25 @@
             var dataLantai3 = '-'
             var dataLantaiGround = '-'
             var customPopup =
-            "<b style='font-size: 15px;'>"+tooltip+"</b><br/>" +
+                "<b style='font-size: 15px;'>" + tooltip + ": " + dataPopUp.total + " </b><br/>" +
                 "<table  width: 100%;>" +
                 "<tbody style='font-color:#fff;'>" +
-                
+
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. Ground</td>" +
-                "<td class='fontDetail'><b>: "+dataLantaiGround+"</td>" +
-                "</tr>" + 
+                "<td class='fontDetail'><b>: " + dataPopUp.ground + "</td>" +
+                "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 1</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai1+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_1 + "</td>" +
                 "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 2</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai2+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_2 + "</td>" +
                 "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 3</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai3+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_3 + "</td>" +
                 "</tbody>" +
                 "</table>";
 
@@ -420,15 +586,15 @@
 
             circle.bindPopup(customPopup, customOptions)
             circle.bindTooltip(tooltip).openTooltip()
-        } 
+        }
         // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-        
+
         function setPolygonRadius(LongLat, color, dataPopUp, map, tooltip) {
             var polygon = L.polygon(
                 LongLat, {
                     color: color,
                     fillColor: color,
-                    fillOpacity: 0.2
+                    fillOpacity: 0.5
                 }).addTo(map);
             var customOptions = {
                 'maxWidth': '400',
@@ -441,29 +607,34 @@
             var dataLantaiGround = '-'
 
             var customPopup =
-            "<b style='font-size: 15px;'>"+tooltip+"</b><br/>" +
+                "<b style='font-size: 15px;'>" + tooltip + ": " + dataPopUp.total + " </b><br/>" +
                 "<table  width: 100%;>" +
-                "<tbody style='font-color:#fff;'>" + 
+                "<tbody style='font-color:#fff;'>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. Ground</td>" +
-                "<td class='fontDetail'><b>: "+dataLantaiGround+"</td>" +
-                "</tr>" + 
+                "<td class='fontDetail'><b>: " + dataPopUp.ground + "</td>" +
+                "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 1</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai1+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_1 + "</td>" +
                 "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 2</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai2+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_2 + "</td>" +
                 "</tr>" +
                 "<tr>" +
                 "<td class='fontDetail'><b>Lt. 3</td>" +
-                "<td class='fontDetail'><b>: "+dataLantai3+"</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.lantai_3 + "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                "<td class='fontDetail'><b>Pos 1</td>" +
+                "<td class='fontDetail'><b>: " + dataPopUp.pos_1 + "</td>" +
+                    "</tr>" +
                 "</tbody>" +
                 "</table>";
             polygon.bindPopup(customPopup, customOptions);
             polygon.bindTooltip(tooltip).openTooltip()
-           
+
         }
 
 
@@ -634,6 +805,7 @@
         getDatabanner()
         getGrafikSummary()
         getDataMap()
+
         function downloadChart(ctx, filename) {
             var a = document.createElement('a');
             a.href = ctx.toBase64Image();

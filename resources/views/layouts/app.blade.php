@@ -15,9 +15,8 @@
         <link href="{{ asset('/sb-admin-pro/dataTables.bootstrap4.min.css')}}" rel="stylesheet" crossorigin="anonymous" />
         <link href="{{ asset('/sb-admin-pro/daterangepicker.css')}}" rel="stylesheet" crossorigin="anonymous" />
         <script data-search-pseudo-elements defer src="{{ asset('/sb-admin-pro/font-awesome-all.min.js')}}" crossorigin="anonymous"></script>
-        <script src="{{ asset('/sb-admin-pro/feather.min.js')}}" crossorigin="anonymous"></script>
-        {{-- <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2/css/select2.min.css') }}">  --}}
-        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}"> 
+        <script src="{{ asset('/sb-admin-pro/feather.min.js')}}" crossorigin="anonymous"></script> 
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}"> 
         {{-- <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/select/select1.bootstrap4.min.css')}}">
         <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/button/buttons.bootstrap4.min.css')}}">
         <script src="{{ asset('/adminlte3/plugins/otherplugin/select/dataTables.select1.min.js') }}"></script> 
@@ -27,13 +26,20 @@
         
         <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select2.min.css')}}">
         <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select2-bootstrap4.min.css')}}">
-        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/select/select1.bootstrap4.min.css')}}">
-        <link rel="stylesheet" href="{{ asset('/adminlte3/plugins/otherplugin/button/buttons.bootstrap4.min.css')}}">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/select/select1.bootstrap4.min.css')}}">
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/button/buttons.bootstrap4.min.css')}}">
+        {{-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/> --}}
+        <link rel="stylesheet" href="{{ asset('/sb-admin-pro/leaflet.css')}}"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin=""/>
+        
         <link rel="stylesheet" href="{{ asset('/sb-admin-pro/leaflet.label.css')}}">
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        {{-- <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script> --}}
+        <script src="{{ asset('/sb-admin-pro/leaflet.js')}}"
         integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
         crossorigin=""></script>
         <script src="{{ asset('/sb-admin-pro/leaflet.label.js')}}"></script> 
@@ -219,7 +225,7 @@
         </div>
        
         <script src="{{ asset('/sb-admin-pro/jquery-3.5.1.min.js') }}" crossorigin="anonymous"></script>
-        <script src="{{ asset('/adminlte3/plugins/select2/js/select2.full.min.js') }}"></script>
+        <script src="{{ asset('/sb-admin-pro/select2/js/select2.full.min.js') }}"></script>
         <script src="{{ asset('/sb-admin-pro/bootstrap.bundle.min.js') }}" crossorigin="anonymous"></script>
         <script src="{{ asset('/sb-admin-pro/dist/js/scripts.js')}}"></script>
         <script src="{{ asset('/sb-admin-pro/Chart.min.js') }}" crossorigin="anonymous"></script>
@@ -238,12 +244,12 @@
         <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-area.js')}}"></script>
         <script src="{{ asset('/sb-admin-pro/dist/assets/demo/chart-pie-persebaran.js')}}"></script>
         <script src="{{ asset('/sb-admin-pro/dist/js/moment-with-locales.min.js')}}"></script>
-        <link href="{{ asset('/material-bootstrap/filepond.css')}}" rel="stylesheet" />
-        <script src="{{ asset('/material-bootstrap/filepond.js')}}" rel="stylesheet"></script>
+        <link href="{{ asset('/sb-admin-pro/filepond.css')}}" rel="stylesheet" />
+        <script src="{{ asset('/sb-admin-pro/filepond.js')}}" rel="stylesheet"></script>
         
         {{-- <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script> --}}
-        <script src="{{ asset('/material-bootstrap/sweetalert2.all.min.js')}}"></script>
-        <script src="{{ asset('/material-bootstrap/filepond-plugin-file-validate-type.js')}}" rel="stylesheet"></script>
+        <script src="{{ asset('/sb-admin-pro/sweetalert2.all.min.js')}}"></script>
+        <script src="{{ asset('/sb-admin-pro/filepond-plugin-file-validate-type.js')}}" rel="stylesheet"></script>
         <script src="{{ asset('/sb-admin-pro/dist/assets/demo/datatables.js')}}"></script>
         {{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
         
@@ -251,10 +257,10 @@
 <!-- select2 -->
 <script src="{{ asset('/sb-admin-pro/select2.min.js') }}" crossorigin="anonymous"></script>
        
-<script src="{{ asset('/adminlte3/plugins/gijgo/gijgo.min.js')}}" type="text/javascript"></script>
-<link href="{{ asset('/adminlte3/plugins/gijgo/gijgo.min.css')}}" rel="stylesheet" type="text/css" />
-<script src="{{ asset('/adminlte3/plugins/otherplugin/select/dataTables.select1.min.js') }}"></script> 
-<script src="{{ asset('/adminlte3/plugins/otherplugin/button/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('/sb-admin-pro/gijgo/gijgo.min.js')}}" type="text/javascript"></script>
+<link href="{{ asset('/sb-admin-pro/gijgo/gijgo.min.css')}}" rel="stylesheet" type="text/css" />
+<script src="{{ asset('/sb-admin-pro/select/dataTables.select1.min.js') }}"></script> 
+<script src="{{ asset('/sb-admin-pro/button/dataTables.buttons.min.js') }}"></script>
 {{-- <script src="{{ asset('/adminlte3/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"> --}}
 {{-- </script> --}}
 @yield('scripts')

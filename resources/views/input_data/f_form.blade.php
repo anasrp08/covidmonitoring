@@ -86,8 +86,8 @@
                             <select name="lantai" id="lantai" class="form-control select2bs4"
                                 style="width: 100%;">
                                 <option value="1"  selected>1</option>
-                                <option value="2" >2</option>
-                                <option value="3" >3</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
                                 <option value="Ground" >Ground</option>
                                 <option value="Pos 1" >Pos 1</option>
                                

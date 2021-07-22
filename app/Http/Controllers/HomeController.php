@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use PDO;
 use DateTime;
+use stdClass;
 
 class HomeController extends Controller
 {
@@ -555,17 +556,112 @@ $formattedDate=collect($dataKeys)->map(function ($item, $key) {
     { 
         $unitAktif = [];
         $dataMap=DB::table('tbl_header_kasus')
-        
-        ->select('gedung','lantai','wilayah_kerja',DB::raw('count(tgl_positif) as total'))
+        ->leftjoin('tbl_lokasi_kerja','tbl_header_kasus.gedung','tbl_lokasi_kerja.gedung')
+        ->select('tbl_header_kasus.gedung','tbl_lokasi_kerja.lokasi',DB::raw('count(tgl_positif) as total'),
+        DB::raw("(SELECT COUNT(a.lantai) FROM tbl_header_kasus a
+                                WHERE a.lantai = '1'
+                                and a.gedung = tbl_header_kasus.gedung
+                                GROUP BY a.lantai,a.gedung) as lantai_1"),
+                                DB::raw("(SELECT COUNT(a.lantai) FROM tbl_header_kasus a
+                                WHERE a.lantai = '2'
+                                and a.gedung = tbl_header_kasus.gedung
+                                GROUP BY a.lantai,a.gedung) as lantai_2"),
+                                DB::raw("(SELECT COUNT(a.lantai) FROM tbl_header_kasus a
+                                WHERE a.lantai = '3'
+                                and a.gedung = tbl_header_kasus.gedung
+                                GROUP BY a.lantai,a.gedung) as lantai_3"),
+                                DB::raw("(SELECT COUNT(a.lantai) FROM tbl_header_kasus a
+                                WHERE a.lantai = 'Ground'
+                                and a.gedung = tbl_header_kasus.gedung
+                                GROUP BY a.lantai,a.gedung) as ground"),
+                                DB::raw("(SELECT COUNT(a.lantai)  FROM tbl_header_kasus a
+                                WHERE a.lantai = 'Pos 1'
+                                and a.gedung = tbl_header_kasus.gedung
+                                GROUP BY a.lantai,a.gedung) as pos_1"),
+                                )
         ->where('status','PCR Positive') 
         // ->whereBetween('tgl_positif',[$request->startDate, $request->endDate])
-        ->groupBy('gedung','lantai')
-        ->get(); 
+        ->groupBy('gedung');
+        
+        $dataMap=$dataMap->get()->toArray(); 
+        foreach ($dataMap as $row) {
+            // dd($row);
+            if($row->lantai_1==null){
+                $row->lantai_1=0;
 
-        //  dd($dataMap);
+            }
+             if($row->lantai_2==null){
+                // dd($row->lantai_2);
+                $row->lantai_2=0;
+
+            } 
+             if($row->lantai_3==null){
+                $row->lantai_3=0;
+
+            }
+             if($row->ground==null){
+                $row->ground=0;
+
+            }  
+             if($row->pos_1==null){
+                $row->pos_1=0;
+
+            }
+            # code...
+        }
+        $dataGedung=DB::table('tbl_lokasi_kerja')->select('gedung','lokasi')->get();
+ 
+        $arrTemplateData=array();
+        
+
+        foreach($dataGedung as $data){
+            // dd( $data);
+            $templateData=new stdClass();
+            $templateData->gedung=$data->gedung;
+            $templateData->lokasi=$data->lokasi;
+            $templateData->total=0; 
+            $templateData->lantai_1=0;
+            $templateData->lantai_2=0;
+            $templateData->lantai_3=0;
+            $templateData->ground=0;
+            $templateData->pos_1=0; 
+           
+            array_push($arrTemplateData, $templateData);
+
+        } 
+        // dd($dataMap);
+        $collectionArrTemplate=collect($arrTemplateData);
+        // $merged = $collectionArrTemplate->merge($dataMap);
+        // $available_roles = $collectionArrTemplate->diff($dataMap);
+        for($i=1;$i<count($collectionArrTemplate);$i++){
+            // dd($collectionArrTemplate[$i]->gedung);
+            
+            $idx=array_search($collectionArrTemplate[$i]->gedung, array_column($dataMap,'gedung')); 
+            // dd($dataMap[$idx]);
+            
+            if($idx != false){
+                // dd($idx);
+                $collectionArrTemplate[$i]->total=$dataMap[$idx]->total; 
+                $collectionArrTemplate[$i]->lantai_1=$dataMap[$idx]->lantai_1;
+                $collectionArrTemplate[$i]->lantai_2=$dataMap[$idx]->lantai_2;
+                $collectionArrTemplate[$i]->lantai_3=$dataMap[$idx]->lantai_3;
+                $collectionArrTemplate[$i]->ground=$dataMap[$idx]->ground;
+                $collectionArrTemplate[$i]->pos_1=$dataMap[$idx]->pos_1;
+            }
+          
+            // dd($getValue);
+        }
+    //    dd($dataMap);`
+// dd($collectionArrTemplate);
+        
+        
+
+// dd($dataMap);
+ 
         
         return response()->json([
-            'dataValues' =>  $dataMap
+            'dataMap' =>  $collectionArrTemplate,
+            // 'dataGedung' =>$dataGedung
          
     ]);
         
